@@ -17,30 +17,32 @@ struct Graph* countSortEdgesBySource (struct Graph* graph){
     // auxiliary arrays, allocated at the start up of the program
     int *vertex_count = (int*)malloc(graph->num_vertices*sizeof(int)); // needed for Counting Sort
 
-    for(i = 0; i < graph->num_vertices; ++i) {
-        vertex_count[i] = 0;
-    }
-
-    // count occurrence of key: id of a source vertex
-    for(i = 0; i < graph->num_edges; ++i) {
-        key = graph->sorted_edges_array[i].src;
-        vertex_count[key]++;
-    }
-
-    // transform to cumulative sum
-    for(i = 1; i < graph->num_vertices; ++i) {
-        vertex_count[i] += vertex_count[i - 1];
-    }
+#pragma omp parallel shared(graph, vertex_count) private(key) default(none)
+#pragma omp for
+   for (i = 0; i < graph->num_vertices; ++i) {
+      vertex_count[i] = 0;
+   }
+//#pragma omp parallel for schedule(dynamic,256)
+   // count occurrence of key: id of a source vertex
+#pragma omp for
+   for (i = 0; i < graph->num_edges; ++i) {
+      key = graph->sorted_edges_array[i].src;
+      vertex_count[key]++;
+   }
+#pragma omp barrier
+   // transform to cumulative sum
+   for (i = 1; i < graph->num_vertices; ++i) {
+      vertex_count[i] += vertex_count[i - 1];
+   }
 
     // fill-in the sorted array of edges
+
     for(i = graph->num_edges - 1; i >= 0; --i) {
         key = graph->sorted_edges_array[i].src;
         pos = vertex_count[key] - 1;
         sorted_edges_array[pos] = graph->sorted_edges_array[i];
         vertex_count[key]--;
     }
-
-
 
     free(vertex_count);
     free(graph->sorted_edges_array);

@@ -134,12 +134,14 @@ int main(int argc, char **argv) {
     printf("| %-51s | \n", "COUNT Sort Graph");
     printf(" -----------------------------------------------------\n");
     Start(timer);
+#pragma omp barrier
     graph = countSortEdgesBySource(graph); // you need to parallelize this function
     // graph = radixSortEdgesBySource(graph); // you need to parallelize this function
     Stop(timer);
+
     printMessageWithtime("Time Sorting (Seconds)",Seconds(timer));
 
-
+/*
     // For testing purpose.
     
     printf(" -----------------------------------------------------\n");
@@ -173,6 +175,12 @@ int main(int argc, char **argv) {
 
     Stop(timer);
     printMessageWithtime("Time BFS (Seconds)",Seconds(timer));
+
+    printf("CONTENTS OF GRAPH FOR DEBUG:\n");
+  /* for(int i = 0; i <graph->num_edges - 1 ; ++i) {
+      printf("Edge: %i  -  %i\n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest);
+   }*/
+
 
     Start(timer);
     freeGraph(graph);
