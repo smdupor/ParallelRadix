@@ -14,14 +14,14 @@
 
 int numThreads;
 
-void printMessageWithtime(const char * msg, double time){
+void file_dump(const struct Graph *graph, const char *fnp);
 
+void printMessageWithtime(const char * msg, double time){
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", msg);
     printf(" -----------------------------------------------------\n");
     printf("| %-51f | \n", time);
     printf(" -----------------------------------------------------\n");
-
 }
 
 static void usage(void) {
@@ -35,18 +35,14 @@ static void usage(void) {
 
 
 int main(int argc, char **argv) {
-
- 
   char *fvalue = NULL;
   char *rvalue = NULL;
   char *nvalue = NULL;
-
   int root = 0;
 
-
   numThreads = omp_get_max_threads();
-  char *fnameb = NULL;
 
+  char *fnameb = NULL;
   int c;
   opterr = 0;
 
@@ -88,60 +84,68 @@ int main(int argc, char **argv) {
         abort ();
       }
     }
-    
-
     //Set number of threads for the program
     omp_set_nested(1);
     omp_set_num_threads(numThreads);
-
-
+/*
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "File Name");
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", fnameb);
     printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Number of Threads");
+*/    printf("| %-51s | \n", "Number of Threads");
     printf(" -----------------------------------------------------\n");
     printf("| %-51u | \n", numThreads);
     printf(" -----------------------------------------------------\n");
-  
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
-
-    
+  /*
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "New graph calculating size");
     printf(" -----------------------------------------------------\n");
-    Start(timer);
+    Start(timer);*/
     struct Graph* graph = newGraph(fnameb);
-    Stop(timer);
+    struct Graph* graph_ser = newGraph(fnameb);
+ /*   Stop(timer);
     printMessageWithtime("New Graph Created",Seconds(timer));
-
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Populate Graph with edges");
     printf(" -----------------------------------------------------\n");
-    Start(timer);
-    // populate the edge array from file
+   * Start(timer);
+   */ // populate the edge array from file
     loadEdgeArray(fnameb, graph);
-    Stop(timer);
-    printMessageWithtime("Time load edges to graph (Seconds)",Seconds(timer));
-
-
+   loadEdgeArray(fnameb, graph_ser);
+   // Stop(timer);
+    //printMessageWithtime("Time load edges to graph (Seconds)",Seconds(timer));
 
 // you need to parallelize this function
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "COUNT Sort Graph");
     printf(" -----------------------------------------------------\n");
+
+
+   char *fns = "out-csser";
+   char *fnp = "out-cspar";
+
+    // Serial
     Start(timer);
-#pragma omp barrier
     graph = countSortEdgesBySource(graph); // you need to parallelize this function
     // graph = radixSortEdgesBySource(graph); // you need to parallelize this function
     Stop(timer);
+   file_dump(graph, "../out-cspar");
 
-    printMessageWithtime("Time Sorting (Seconds)",Seconds(timer));
+   printMessageWithtime("Parallel Sorting (Seconds)",Seconds(timer));
 
-/*
+   Start(timer);
+   graph_ser = serial_count_sort(graph_ser); // you need to parallelize this function
+   // graph = radixSortEdgesBySource(graph); // you need to parallelize this function
+   Stop(timer);
+   file_dump(graph_ser, "../out-csser");
+
+   printMessageWithtime("Serial Sorting (Seconds)",Seconds(timer));
+
+    /*
     // For testing purpose.
     
     printf(" -----------------------------------------------------\n");
@@ -177,17 +181,30 @@ int main(int argc, char **argv) {
     printMessageWithtime("Time BFS (Seconds)",Seconds(timer));
 
     printf("CONTENTS OF GRAPH FOR DEBUG:\n");
-  /* for(int i = 0; i <graph->num_edges - 1 ; ++i) {
-      printf("Edge: %i  -  %i\n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest);
-   }*/
 
 
-    Start(timer);
+
+  //  Start(timer);
     freeGraph(graph);
-    Stop(timer);
-    printMessageWithtime("Free Graph (Seconds)",Seconds(timer));
-    
+   // Stop(timer);
+    //printMessageWithtime("Free Graph (Seconds)",Seconds(timer));*/
+
+
+
+
+
+
     return 0;
+}
+
+void file_dump(const struct Graph *graph, const char *fnp) {
+   FILE *fpp;
+   fpp = fopen(fnp, "w");
+   for(int i = 0; i <graph->num_edges - 1 ; ++i) {
+      //printf("Edge: %i  -  %i\n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest);
+      fprintf(fpp, "Edge: %i  -  %i\n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest);
+   }
+   close(fpp);
 }
 
 

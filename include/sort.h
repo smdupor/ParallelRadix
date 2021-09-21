@@ -11,6 +11,7 @@
 // struct Graph* radixSortEdgesBySourceMPI (struct Graph* graph);
 // struct Graph* radixSortEdgesBySourceHybrid (struct Graph* graph);
 struct Graph* countSortEdgesBySource (struct Graph* graph);
+struct Graph* serial_count_sort (struct Graph* graph);
 
 extern int numThreads;
 
