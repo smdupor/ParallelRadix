@@ -17,11 +17,12 @@ int numThreads;
 void file_dump(const struct Graph *graph, const char *fnp);
 
 void printMessageWithtime(const char * msg, double time){
-    printf(" -----------------------------------------------------\n");
+    /*printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", msg);
     printf(" -----------------------------------------------------\n");
     printf("| %-51f | \n", time);
-    printf(" -----------------------------------------------------\n");
+    printf(" -----------------------------------------------------\n");*/
+    printf("%s :\t %f\n-----------------------------------------------------\n", msg, time);
 }
 
 static void usage(void) {
@@ -87,124 +88,55 @@ int main(int argc, char **argv) {
     //Set number of threads for the program
     omp_set_nested(1);
     omp_set_num_threads(numThreads);
-/*
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "File Name");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", fnameb);
-    printf(" -----------------------------------------------------\n");
-*/    printf("| %-51s | \n", "Number of Threads");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", numThreads);
+
+    printf("Number of Threads: %i\n", numThreads);
     printf(" -----------------------------------------------------\n");
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
-  /*
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "New graph calculating size");
-    printf(" -----------------------------------------------------\n");
-    Start(timer);*/
+
     struct Graph* graph = newGraph(fnameb);
     struct Graph* graph_ser = newGraph(fnameb);
- /*   Stop(timer);
-    printMessageWithtime("New Graph Created",Seconds(timer));
+    struct Graph* graph_omp = newGraph(fnameb);
 
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Populate Graph with edges");
-    printf(" -----------------------------------------------------\n");
-   * Start(timer);
-   */ // populate the edge array from file
+    printf("loading arrays...\n-----------------------------------------------------\n");
+    // populate the edge array from file
     loadEdgeArray(fnameb, graph);
    loadEdgeArray(fnameb, graph_ser);
-   // Stop(timer);
-    //printMessageWithtime("Time load edges to graph (Seconds)",Seconds(timer));
-
-// you need to parallelize this function
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "COUNT Sort Graph");
-    printf(" -----------------------------------------------------\n");
-
-
-   char *fns = "out-csser";
-   char *fnp = "out-cspar";
+   loadEdgeArray(fnameb, graph_omp);
 
     // Serial
     Start(timer);
     graph = countSortEdgesBySource(graph); // you need to parallelize this function
-    // graph = radixSortEdgesBySource(graph); // you need to parallelize this function
-    Stop(timer);
+      Stop(timer);
    file_dump(graph, "../out-cspar");
-
-   printMessageWithtime("Parallel Sorting (Seconds)",Seconds(timer));
+   freeGraph(graph);
+   printMessageWithtime("Parallel Count Sort (Seconds)",Seconds(timer));
 
    Start(timer);
    graph_ser = serial_count_sort(graph_ser); // you need to parallelize this function
-   // graph = radixSortEdgesBySource(graph); // you need to parallelize this function
    Stop(timer);
    file_dump(graph_ser, "../out-csser");
+   freeGraph(graph_ser);
+   printMessageWithtime("Serial Count Sort (Seconds)",Seconds(timer));
 
-   printMessageWithtime("Serial Sorting (Seconds)",Seconds(timer));
-
-    /*
-    // For testing purpose.
-    
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Map vertices to Edges");
-    printf(" -----------------------------------------------------\n");
-    Start(timer);
-    mapVertices(graph);
-    Stop(timer);
-    printMessageWithtime("Time Mapping (Seconds)",Seconds(timer));
-
-    printf(" *****************************************************\n");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "BFS Algorithm (PUSH/PULL)");
-    printf(" -----------------------------------------------------\n");
-
-    printf("| %-51s | \n", "PUSH");
-  
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "ROOT/SOURCE");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", root);
-    printf(" -----------------------------------------------------\n");
-    Start(timer);
-    
-    breadthFirstSearchGraphPush(root, graph);
-
-    // for (int p = 0; p < 10; ++p)
-    // {
-    //   breadthFirstSearchGraphPush(p, graph); 
-    // }
-
-    Stop(timer);
-    printMessageWithtime("Time BFS (Seconds)",Seconds(timer));
-
-    printf("CONTENTS OF GRAPH FOR DEBUG:\n");
-
-
-
-  //  Start(timer);
-    freeGraph(graph);
-   // Stop(timer);
-    //printMessageWithtime("Free Graph (Seconds)",Seconds(timer));*/
-
-
-
-
-
-
+   // OMP Radix
+   Start(timer);
+    graph_omp = radixSortEdgesBySourceOpenMP(graph_omp); // you need to parallelize this function
+   Stop(timer);
+   file_dump(graph_omp, "../out-omp");
+   freeGraph(graph_omp);
+   printMessageWithtime("Radix Sorting OMP (Seconds)",Seconds(timer));
     return 0;
 }
 
 void file_dump(const struct Graph *graph, const char *fnp) {
    FILE *fpp;
    fpp = fopen(fnp, "w");
-   for(int i = 0; i <graph->num_edges - 1 ; ++i) {
+   for(int i = 0; i < graph->num_edges - 1 ; ++i) {
       //printf("Edge: %i  -  %i\n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest);
-      fprintf(fpp, "Edge: %i  -  %i\n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest);
+      fprintf(fpp,"Edge: %i  -  %i\n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest);
    }
-   close(fpp);
+   fclose(fpp);
 }
 
 

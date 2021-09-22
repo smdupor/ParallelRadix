@@ -114,7 +114,7 @@ f=./datasets/facebook/facebook_combined.txt
 
 .PHONY: run
 run: test
-	$(APP_DIR)/$(BIN_DIR)/$(APP) -f $(f) -n $(n) -r $(r) -h
+	#$(APP_DIR)/$(BIN_DIR)/$(APP) -f $(f) -n $(n) -r $(r) -h
 
 .PHONY: debug
 debug: test	
