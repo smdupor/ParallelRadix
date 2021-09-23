@@ -41,6 +41,64 @@ struct Graph* serial_count_sort (struct Graph* graph){
    graph->sorted_edges_array = sorted_edges_array;
    return graph;
 }
+/*
+struct Graph* countSortEdgesBySource (struct Graph* graph){
+   int i;
+   int key;
+   int pos;
+   struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
+   // auxiliary arrays, allocated at the start up of the program
+   int *vertex_count = (int*)malloc(graph->num_vertices*sizeof(int)); // needed for Counting Sort
+
+  //  **************************** HOLDING ZONE **************************
+   // printf("Thread num: %i of %i \n", omp_get_thread_num(), omp_get_num_threads());
+
+   // memset(vertex_count, 0, graph->num_vertices*sizeof(int));
+
+
+   // **************************** HOLDING ZONE **************************
+   const int vertices = graph->num_vertices;
+   const int edges = graph->num_edges;
+    // *************** remove edges, vertices**
+#pragma omp parallel default(none) shared(graph, vertex_count, sorted_edges_array) private (key, i, pos)
+   {
+#pragma omp for schedule(static, 8)
+      for (i = 0; i < vertices; ++i) {
+         vertex_count[i] = 0;
+      }
+
+      // count occurrence of key: id of a source vertex
+#pragma omp for schedule(static, 8)
+      for (i = 0; i < edges; ++i) {
+         key = graph->sorted_edges_array[i].src;
+#pragma omp atomic
+         vertex_count[key]++;
+      }
+#pragma omp single
+      // transform to cumulative sum
+      for (i = 1; i < vertices; ++i) {
+         vertex_count[i] += vertex_count[i - 1];
+      }
+
+      // fill-in the sorted array of edges
+#pragma omp single
+      for (i = edges - 1; i >= 0; --i) {
+
+         pos = --vertex_count[graph->sorted_edges_array[i].src];
+
+         //  #pragma omp critical
+         sorted_edges_array[pos] = graph->sorted_edges_array[i];
+         //  #pragma omp atomic
+         // vertex_count[key]--;
+      }
+   }
+
+   free(vertex_count);
+   free(graph->sorted_edges_array);
+   graph->sorted_edges_array = sorted_edges_array;
+
+   return graph;
+}*/
 
 struct Graph* countSortEdgesBySource (struct Graph* graph){
    int i;
@@ -99,7 +157,6 @@ struct Graph* countSortEdgesBySource (struct Graph* graph){
 
    return graph;
 }
-
 struct Graph* radix_serial(struct Graph* graph) {
    int i, key, pos;
    int max = 0, granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
