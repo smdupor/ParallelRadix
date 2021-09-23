@@ -33,7 +33,7 @@ struct Graph * newGraph(const char * fname){
 }
 
 struct Graph * copyGraph(const struct Graph * orig){
-   int i;
+   //int i;
 
    struct Graph* graph = (struct Graph*) malloc(sizeof(*orig));
 

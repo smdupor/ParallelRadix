@@ -59,6 +59,7 @@ struct Graph* countSortEdgesBySource (struct Graph* graph){
    /**************************** HOLDING ZONE **************************/
    const int vertices = graph->num_vertices;
    const int edges = graph->num_edges;
+   /*************** remove edges, vertices**/
 #pragma omp parallel default(none) shared(graph, vertex_count, sorted_edges_array) private (key, i, pos)
    {
 #pragma omp for schedule(static, 8)
@@ -141,17 +142,22 @@ struct Graph* radix_serial(struct Graph* graph) {
       graph->sorted_edges_array = sorted_edges_array;
       sorted_edges_array = temp;
    }
+return graph;
 }
 
-struct Graph* radixSortEdgesBySourceOpenMP (struct Graph* graph){
-   int i, key, pos;
-   int max=0, granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
+struct Graph* radixSortEdgesBySourceOpenMP (struct Graph* graph) {
+   int i, key, pos, digits;
+   int max = 0, granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
 
    const int edges = graph->num_edges;
    const int jsize = edges / numThreads;
    const int jqty = edges / jsize;
-   const int jrem = edges - (jsize*jqty);
+   const int jrem = edges - (jsize * jqty);
    int maxes[jqty];
+   printf("start maximizer section\n");
+
+   /*********** remove jqty, jsize, edges*/
+
 #pragma omp parallel default(none) shared(graph, maxes) private(i)
    {
 #pragma omp single
@@ -172,55 +178,59 @@ struct Graph* radixSortEdgesBySourceOpenMP (struct Graph* graph){
       }
    }
    max = 0;
-   for(i=0;i<jqty;++i){
-      if(maxes[i]>max)
-         max=maxes[i];
+   for (i = 0; i < jqty; ++i) {
+      if (maxes[i] > max)
+         max = maxes[i];
    }
 
    struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
    struct Edge *temp;
-   int *vertex_count = (int*)malloc((2*bitmask)*sizeof(int));
+   int vertex_count[4][bitmask + 1];
 
-   for(int digits = 0; max>>digits > 0; digits += granularity) {
-#pragma omp parallel default(none) shared(graph, vertex_count, sorted_edges_array, bitmask, digits) private (key, i, pos)
-      {
-#pragma omp single
-
+   omp_set_num_threads(4);
+#pragma omp parallel default(none) shared(graph, vertex_count, sorted_edges_array, bitmask, granularity, max, temp, digits) private (key, i, pos)
+   {
+#pragma omp for schedule(static, 1)
+      for (digits = 0; digits < 32; digits += granularity) {
          // zero Out count array
-         for (i = 0; i < (2 * bitmask); ++i) {
-            vertex_count[i] = 0;
+         for (i = 0; i < bitmask + 1; ++i) {
+            vertex_count[(digits / granularity)][i] = 0;
          }
 
-#pragma omp for schedule(static, 16)
          // count occurrence of key: id of a source vertex
          for (i = 0; i < edges; ++i) {
             key = graph->sorted_edges_array[i].src;
-#pragma omp atomic
-            vertex_count[(key >> digits) & (bitmask)]++;
+            vertex_count[(digits / granularity)][(key >> digits) & (bitmask)]++;
          }
-#pragma omp single
+
          // transform to cumulative sum
-         for (i = 1; i < (2 * bitmask); ++i) {
-            vertex_count[i] += vertex_count[i - 1];
+         for (i = 1; i < bitmask + 1; ++i) {
+            vertex_count[(digits / granularity)][i] += vertex_count[(digits / granularity)][i - 1];
          }
-#pragma omp single
+      }
+   }
+
+      for (digits = 0; max >> digits > 0; digits += granularity) {
          // fill-in the sorted array of edges
+         if(vertex_count[(digits / granularity)][1] == edges)
+            break;
          for (i = edges - 1; i >= 0; --i) {
             key = graph->sorted_edges_array[i].src;
             key = (key >> digits) & bitmask;
-            pos = vertex_count[key] - 1;
+            pos = --vertex_count[(digits / granularity)][key];
             sorted_edges_array[pos] = graph->sorted_edges_array[i];
-//#pragma omp atomic
-            vertex_count[key]--;
+
          }
+
+         // Swap the dirty and clean arrays
+         temp = graph->sorted_edges_array;
+         graph->sorted_edges_array = sorted_edges_array;
+         sorted_edges_array = temp;
       }
-      // Swap the dirty and clean arrays
-      temp = graph->sorted_edges_array;
-      graph->sorted_edges_array = sorted_edges_array;
-      sorted_edges_array = temp;
-   }
+
    //free the extra arrays
-   free(vertex_count);
+
+   //free(*vertex_count);
    free(sorted_edges_array);
    return graph;
 }

@@ -38,9 +38,9 @@ static void usage(void) {
 
 int main(int argc, char **argv) {
   char *fvalue = NULL;
-  char *rvalue = NULL;
+  //char *rvalue = NULL;
   char *nvalue = NULL;
-  int root = 0;
+  //int root = 0;
 
 
 
@@ -61,8 +61,8 @@ int main(int argc, char **argv) {
         fnameb = fvalue;
         break;
       case 'r':
-        rvalue = optarg;
-        root = atoi(rvalue);
+        //rvalue = optarg;
+      //  root = atoi(rvalue);
         break;
        break;
       case 'n':
@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
    loadEdgeArray(fnameb, graph_omp);
    printf("Done. Sorting.\n-----------------------------------------------------\n");
 
-   char prefix[80] = "../";
+   //char prefix[80] = "../";
    //char prefix[80] =  "/mnt/beegfs/smdupor/";
 
     // Serial
@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
    printMessageWithtime("Serial Count Sort (Seconds)",Seconds(timer));
   // file_dump(graph_ser, strcat(prefix,"out-csser"));
    validation_run(graph_ser, graph, 1);
-
+   printf("validation complete\n");
 
    // OMP Radix
    Start(timer);
@@ -132,11 +132,11 @@ int main(int argc, char **argv) {
    Stop(timer);
    printMessageWithtime("Radix Sorting OMP (Seconds)",Seconds(timer));
    //file_dump(graph_omp, strcat(prefix,"out-omp"));
-   validation_run(graph_ser, graph_omp, 1);
-
-   freeGraph(graph_omp);
+   validation_run(graph_ser, graph_omp, 2);
+   printf("validation complete\n");
+  freeGraph(graph_omp);
    freeGraph(graph);
-   freeGraph(graph_ser);
+ freeGraph(graph_ser);
 
     return 0;
 }
