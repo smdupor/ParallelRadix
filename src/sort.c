@@ -148,10 +148,33 @@ struct Graph* radixSortEdgesBySourceOpenMP (struct Graph* graph){
    int max=0, granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
 
    const int edges = graph->num_edges;
-
-   for (i = 0; i < edges; ++i) {
-      if (max < graph->sorted_edges_array[i].src)
-         max = graph->sorted_edges_array[i].src;
+   const int jsize = edges / numThreads;
+   const int jqty = edges / jsize;
+   const int jrem = edges - (jsize*jqty);
+   int maxes[jqty];
+#pragma omp parallel default(none) shared(graph, maxes) private(i)
+   {
+#pragma omp single
+      for (i = 0; i < jqty; ++i) {
+         maxes[i] = 0;
+      }
+#pragma omp for schedule(static, 256)
+      for (int j = 0; j < jqty; ++j) {
+         for (i = j * jsize; i < (j + 1) * jsize; ++i) {
+            if (maxes[j] < graph->sorted_edges_array[i].src)
+               maxes[j] = graph->sorted_edges_array[i].src;
+         }
+      }
+#pragma omp single
+      for (i = jqty * jsize; i < edges; ++i) {
+         if (maxes[jqty - 1] < graph->sorted_edges_array[i].src)
+            maxes[jqty - 1] = graph->sorted_edges_array[i].src;
+      }
+   }
+   max = 0;
+   for(i=0;i<jqty;++i){
+      if(maxes[i]>max)
+         max=maxes[i];
    }
 
    struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
@@ -159,26 +182,36 @@ struct Graph* radixSortEdgesBySourceOpenMP (struct Graph* graph){
    int *vertex_count = (int*)malloc((2*bitmask)*sizeof(int));
 
    for(int digits = 0; max>>digits > 0; digits += granularity) {
-      // zero Out count array
-      for (i = 0; i < (2*bitmask); ++i) {
-         vertex_count[i] = 0;
-      }
-      // count occurrence of key: id of a source vertex
-      for (i = 0; i < edges; ++i) {
-         key = graph->sorted_edges_array[i].src;
-         vertex_count[(key >> digits) & (bitmask)]++;
-      }
-      // transform to cumulative sum
-      for (i = 1; i < (2*bitmask); ++i) {
-         vertex_count[i] += vertex_count[i - 1];
-      }
+#pragma omp parallel default(none) shared(graph, vertex_count, sorted_edges_array, bitmask, digits) private (key, i, pos)
+      {
+#pragma omp single
 
-      // fill-in the sorted array of edges
-      for (i = edges - 1; i >= 0; --i) {
-         key = graph->sorted_edges_array[i].src;
-         pos = vertex_count[(key >> digits) & bitmask] - 1;
-         sorted_edges_array[pos] = graph->sorted_edges_array[i];
-         vertex_count[(key >> digits) & bitmask]--;
+         // zero Out count array
+         for (i = 0; i < (2 * bitmask); ++i) {
+            vertex_count[i] = 0;
+         }
+
+#pragma omp for schedule(static, 16)
+         // count occurrence of key: id of a source vertex
+         for (i = 0; i < edges; ++i) {
+            key = graph->sorted_edges_array[i].src;
+#pragma omp atomic
+            vertex_count[(key >> digits) & (bitmask)]++;
+         }
+#pragma omp single
+         // transform to cumulative sum
+         for (i = 1; i < (2 * bitmask); ++i) {
+            vertex_count[i] += vertex_count[i - 1];
+         }
+#pragma omp single
+         // fill-in the sorted array of edges
+         for (i = edges - 1; i >= 0; --i) {
+            key = graph->sorted_edges_array[i].src;
+            key = (key >> digits) & bitmask;
+            pos = vertex_count[key] - 1;
+            sorted_edges_array[pos] = graph->sorted_edges_array[i];
+            vertex_count[key]--;
+         }
       }
       // Swap the dirty and clean arrays
       temp = graph->sorted_edges_array;
