@@ -41,6 +41,8 @@ int main(int argc, char **argv) {
   char *nvalue = NULL;
   int root = 0;
 
+
+
   numThreads = omp_get_max_threads();
 
   char *fnameb = NULL;
@@ -93,39 +95,46 @@ int main(int argc, char **argv) {
     printf(" -----------------------------------------------------\n");
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
-
+   printf("initializing graphs...\n");
     struct Graph* graph = newGraph(fnameb);
     struct Graph* graph_ser = newGraph(fnameb);
     struct Graph* graph_omp = newGraph(fnameb);
 
-    printf("loading arrays...\n-----------------------------------------------------\n");
+    printf("loading arrays...\n");
     // populate the edge array from file
     loadEdgeArray(fnameb, graph);
    loadEdgeArray(fnameb, graph_ser);
    loadEdgeArray(fnameb, graph_omp);
+   printf("Done. Sorting.\n-----------------------------------------------------\n");
+
+   char prefix[80] = "../";
+   //char prefix[80] =  "/mnt/beegfs/smdupor/";
 
     // Serial
     Start(timer);
     graph = countSortEdgesBySource(graph); // you need to parallelize this function
       Stop(timer);
-   file_dump(graph, "../out-cspar");
-   freeGraph(graph);
+   file_dump(graph, strcat(prefix, "out-cspar"));
    printMessageWithtime("Parallel Count Sort (Seconds)",Seconds(timer));
+   freeGraph(graph);
+
 
    Start(timer);
    graph_ser = serial_count_sort(graph_ser); // you need to parallelize this function
    Stop(timer);
-   file_dump(graph_ser, "../out-csser");
-   freeGraph(graph_ser);
    printMessageWithtime("Serial Count Sort (Seconds)",Seconds(timer));
+   file_dump(graph_ser, strcat(prefix,"out-csser"));
+   freeGraph(graph_ser);
+
 
    // OMP Radix
    Start(timer);
     graph_omp = radixSortEdgesBySourceOpenMP(graph_omp); // you need to parallelize this function
    Stop(timer);
-   file_dump(graph_omp, "../out-omp");
-   freeGraph(graph_omp);
    printMessageWithtime("Radix Sorting OMP (Seconds)",Seconds(timer));
+   file_dump(graph_omp, strcat(prefix,"out-omp"));
+   freeGraph(graph_omp);
+
     return 0;
 }
 
