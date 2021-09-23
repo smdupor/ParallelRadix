@@ -15,6 +15,7 @@
 int numThreads;
 
 void file_dump(const struct Graph *graph, const char *fnp);
+int validation_run(const struct Graph *serial, const struct Graph *test, short control);
 
 void printMessageWithtime(const char * msg, double time){
     /*printf(" -----------------------------------------------------\n");
@@ -97,8 +98,8 @@ int main(int argc, char **argv) {
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
    printf("initializing graphs...\n");
     struct Graph* graph = newGraph(fnameb);
-    struct Graph* graph_ser = newGraph(fnameb);
-    struct Graph* graph_omp = newGraph(fnameb);
+    struct Graph* graph_ser = copyGraph(graph);
+    struct Graph* graph_omp = copyGraph(graph);
 
     printf("loading arrays...\n");
     // populate the edge array from file
@@ -114,17 +115,15 @@ int main(int argc, char **argv) {
     Start(timer);
     graph = countSortEdgesBySource(graph); // you need to parallelize this function
       Stop(timer);
-   file_dump(graph, strcat(prefix, "out-cspar"));
+   //file_dump(graph, strcat(prefix, "out-cspar"));
    printMessageWithtime("Parallel Count Sort (Seconds)",Seconds(timer));
-   freeGraph(graph);
-
 
    Start(timer);
    graph_ser = serial_count_sort(graph_ser); // you need to parallelize this function
    Stop(timer);
    printMessageWithtime("Serial Count Sort (Seconds)",Seconds(timer));
-   file_dump(graph_ser, strcat(prefix,"out-csser"));
-   freeGraph(graph_ser);
+  // file_dump(graph_ser, strcat(prefix,"out-csser"));
+   validation_run(graph_ser, graph, 1);
 
 
    // OMP Radix
@@ -132,8 +131,12 @@ int main(int argc, char **argv) {
     graph_omp = radixSortEdgesBySourceOpenMP(graph_omp); // you need to parallelize this function
    Stop(timer);
    printMessageWithtime("Radix Sorting OMP (Seconds)",Seconds(timer));
-   file_dump(graph_omp, strcat(prefix,"out-omp"));
+   //file_dump(graph_omp, strcat(prefix,"out-omp"));
+   validation_run(graph_ser, graph_omp, 1);
+
    freeGraph(graph_omp);
+   freeGraph(graph);
+   freeGraph(graph_ser);
 
     return 0;
 }
@@ -148,4 +151,56 @@ void file_dump(const struct Graph *graph, const char *fnp) {
    fclose(fpp);
 }
 
+int validation_run(const struct Graph *serial, const struct Graph *test, short control) {
+   // Control = 0 NO printing
+   // Control = 1 Print SUMS
+   // Control = 2 Verbose
+   int success = -1;
+   switch(control){
+      case 0:
+         if(serial->num_edges != test->num_edges)
+            return success;
+         success = 0;
+         for(int i=0; i< serial->num_edges;++i){
+            if(serial->sorted_edges_array[i].src != test->sorted_edges_array[i].src &&
+                     serial->sorted_edges_array[i].dest != test->sorted_edges_array[i].dest) {
+               ++success;
+            }
+         }
+         return success;
+      case 1:
+         if(serial->num_edges != test->num_edges) {
+          printf("Edge Quantity Failure: Input: %i  Output: %i\n", serial->num_edges, test->num_edges);
+            return success;
+         }
+         success = 0;
+         for(int i=0; i< serial->num_edges;++i){
+            if(serial->sorted_edges_array[i].src != test->sorted_edges_array[i].src &&
+               serial->sorted_edges_array[i].dest != test->sorted_edges_array[i].dest) {
+               ++success;
+            }
+         }
+         if(success>0)
+         printf("Interal Graph Failures Qty: %i",success);
+         return success;
+      case 2:
+         if(serial->num_edges != test->num_edges) {
+            printf("Edge Quantity Failure: Input: %i  Output: %i\n", serial->num_edges, test->num_edges);
+            return success;
+         }
+         success = 0;
+         for(int i=0; i< serial->num_edges;++i){
+            if(serial->sorted_edges_array[i].src != test->sorted_edges_array[i].src &&
+               serial->sorted_edges_array[i].dest != test->sorted_edges_array[i].dest) {
+               ++success;
+               printf("Internal Graph Failure on Row: %i, Contents %i - %i  VS %i - %i\n", i,serial->sorted_edges_array[i].src ,
+                      test->sorted_edges_array[i].src , serial->sorted_edges_array[i].dest, test->sorted_edges_array[i].dest);
+            }
+         }
+         if(success>0)
+         printf("Interal Graph Failures Qty: %i\n",success);
+         return success;
+   }
+   return success;
+}
 

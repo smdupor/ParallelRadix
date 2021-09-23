@@ -23,6 +23,7 @@ struct Graph{
 void   loadGraphInfo(const char * fname, struct Graph *graph);
 // initialize a new graph from file
 struct Graph * newGraph(const char * fname);
+struct Graph * copyGraph(const struct Graph * orig);
 void freeGraph(struct Graph *graph);
 
 
