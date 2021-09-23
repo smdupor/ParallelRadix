@@ -210,6 +210,7 @@ struct Graph* radixSortEdgesBySourceOpenMP (struct Graph* graph){
             key = (key >> digits) & bitmask;
             pos = vertex_count[key] - 1;
             sorted_edges_array[pos] = graph->sorted_edges_array[i];
+//#pragma omp atomic
             vertex_count[key]--;
          }
       }
