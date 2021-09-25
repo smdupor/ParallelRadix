@@ -93,8 +93,8 @@ void loadEdgeArrayInfo(const char *fname, int *numOfVertices, int *numOfEdges) {
 
    *numOfVertices = num_vertices + 1;
    *numOfEdges = size - 1;
-   printf("Number Vertices: %i\n", num_vertices+1);
-   printf("Number Edges: %i\n", size);
+  // printf("Number Vertices: %i\n", num_vertices+1);
+   //printf("Number Edges: %i\n", size);
 }
 
 /*

@@ -106,8 +106,11 @@ int main(int argc, char **argv) {
    printf("\nCopying graphs...");
    fflush(stdout);
     struct Graph* graph_ser = copyGraph(graph);
+   printf("<1>");
+   fflush(stdout);
     struct Graph* graph_omp = copyGraph(graph);
-
+   printf("<2>");
+   fflush(stdout);
 
     // populate the edge array from file
     //loadEdgeArray(fnameb, graph);
