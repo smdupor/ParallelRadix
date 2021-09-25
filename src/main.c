@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <omp.h>
+#include <mpi.h>
 #include <memory.h>
 
 #include "graph.h"
@@ -42,7 +43,8 @@ int main(int argc, char **argv) {
   char *nvalue = NULL;
   //int root = 0;
 
-
+   int provided;
+   MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
 
   numThreads = omp_get_max_threads();
 
@@ -105,10 +107,13 @@ int main(int argc, char **argv) {
     loadEdgeArray(fnameb, graph);
    printf("\nCopying graphs...");
    fflush(stdout);
-    struct Graph* graph_ser = copyGraph(graph);
+ //   struct Graph* graph_ser = copyGraph(graph);
    printf("<1>");
    fflush(stdout);
-    struct Graph* graph_omp = copyGraph(graph);
+ //   struct Graph* graph_omp = copyGraph(graph);
+   printf("<2>");
+   fflush(stdout);
+   struct Graph* graph_mpi = graph;
    printf("<2>");
    fflush(stdout);
 
@@ -122,34 +127,57 @@ int main(int argc, char **argv) {
    char prefix[80] =  "/mnt/beegfs/smdupor/";
 
     // Serial
-    Start(timer);
-    graph = countSortEdgesBySource(graph); // you need to parallelize this function
-      Stop(timer);
+  //  Start(timer);
+ //   graph = countSortEdgesBySource(graph); // you need to parallelize this function
+   //   Stop(timer);
    //file_dump(graph, strcat(prefix, "out-cspar"));
-   printMessageWithtime("Parallel Count Sort (Seconds)",Seconds(timer));
+  // printMessageWithtime("Parallel Count Sort (Seconds)",Seconds(timer));
 
-   Start(timer);
-   graph_ser = serial_count_sort(graph_ser); // you need to parallelize this function
-   Stop(timer);
-   printMessageWithtime("Serial Count Sort (Seconds)",Seconds(timer));
+  // Start(timer);
+  // graph_ser = serial_count_sort(graph_ser); // you need to parallelize this function
+ //  Stop(timer);
+ //  printMessageWithtime("Serial Count Sort (Seconds)",Seconds(timer));
   //file_dump(graph_ser, strcat(prefix,"out-csser"));
-   validation_run(graph_ser, graph, 1);
-   printf("validation complete\n");
+ //  validation_run(graph_ser, graph, 1);
+ //  printf("validation complete\n");
 
    // OMP Radix
-   Start(timer);
-    graph_omp = radixSortEdgesBySourceOpenMP(graph_omp); // you need to parallelize this function
-   Stop(timer);
-   printMessageWithtime("Radix Sorting OMP (Seconds)",Seconds(timer));
+ //  Start(timer);
+ //   graph_omp = radixSortEdgesBySourceOpenMP(graph_omp); // you need to parallelize this function
+//   Stop(timer);
+ //  printMessageWithtime("Radix Sorting OMP (Seconds)",Seconds(timer));
    //file_dump(graph_omp, strcat(prefix,"out-omp"));
-   validation_run(graph_ser, graph_omp, 1);
-   printf("validation complete\n");
-  freeGraph(graph_omp);
-   freeGraph(graph);
- freeGraph(graph_ser);
+ //  validation_run(graph_ser, graph_omp, 1);
+ //  printf("validation complete\n");
+//  freeGraph(graph_omp);
+ //  freeGraph(graph);
 
- Stop(timer2);
-   printMessageWithtime("Total Sim Time: ", Seconds(timer2) );
+   Start(timer);
+  graph_mpi = radixSortEdgesBySourceMPI(graph_mpi); // you need to parallelize this function
+   Stop(timer);
+   if(graph_mpi != NULL) {
+      printMessageWithtime("Radix Sorting MPI (Seconds)", Seconds(timer));
+     // freeGraph(graph_mpi);
+      int myrank;
+      int my_rank;
+      MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+      if(myrank == 0)
+         file_dump(graph_mpi, strcat(prefix,"out-mpi"));
+
+  //    validation_run(graph_ser, graph_omp, 1);
+   }
+   else {
+      printf("Slave process, exit.");
+      //freeGraph(graph_mpi);
+   }
+   MPI_Barrier(MPI_COMM_WORLD);
+ freeGraph(graph_mpi);
+
+ //Stop(timer2);
+ //  printMessageWithtime("Total Sim Time: ", Seconds(timer2) );
+
+
+   MPI_Finalize();
 
     return 0;
 }

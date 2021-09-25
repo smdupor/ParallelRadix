@@ -3,19 +3,19 @@
 #include <errno.h>
 #include <omp.h>
 #include <string.h>
-// #include <mpi.h>
+#include <mpi.h>
 
 #include "sort.h"
 #include "graph.h"
 
 
-struct Graph* serial_count_sort (struct Graph* graph){
+struct Graph *serial_count_sort(struct Graph *graph) {
    int i;
    int key;
    int pos;
    struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
    // auxiliary arrays, allocated at the start up of the program
-   int *vertex_count = (int*)malloc(graph->num_vertices*sizeof(int)); // needed for Counting Sort
+   int *vertex_count = (int *) malloc(graph->num_vertices * sizeof(int)); // needed for Counting Sort
    for (i = 0; i < graph->num_vertices; ++i) {
       vertex_count[i] = 0;
    }
@@ -41,6 +41,7 @@ struct Graph* serial_count_sort (struct Graph* graph){
    graph->sorted_edges_array = sorted_edges_array;
    return graph;
 }
+
 /*
 struct Graph* countSortEdgesBySource (struct Graph* graph){
    int i;
@@ -100,13 +101,13 @@ struct Graph* countSortEdgesBySource (struct Graph* graph){
    return graph;
 }*/
 
-struct Graph* countSortEdgesBySource (struct Graph* graph){
+struct Graph *countSortEdgesBySource(struct Graph *graph) {
    int i;
    int key;
    int pos;
    struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
    // auxiliary arrays, allocated at the start up of the program
-   int *vertex_count = (int*)malloc(graph->num_vertices*sizeof(int)); // needed for Counting Sort
+   int *vertex_count = (int *) malloc(graph->num_vertices * sizeof(int)); // needed for Counting Sort
 
    /**************************** HOLDING ZONE **************************/
    // printf("Thread num: %i of %i \n", omp_get_thread_num(), omp_get_num_threads());
@@ -157,7 +158,8 @@ struct Graph* countSortEdgesBySource (struct Graph* graph){
 
    return graph;
 }
-struct Graph* radix_serial(struct Graph* graph) {
+
+struct Graph *radix_serial(struct Graph *graph) {
    int i, key, pos;
    int max = 0, granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
 
@@ -199,10 +201,10 @@ struct Graph* radix_serial(struct Graph* graph) {
       graph->sorted_edges_array = sorted_edges_array;
       sorted_edges_array = temp;
    }
-return graph;
+   return graph;
 }
 
-struct Graph* radixSortEdgesBySourceOpenMP (struct Graph* graph) {
+struct Graph *radixSortEdgesBySourceOpenMP(struct Graph *graph) {
    int i, key, pos, digits;
    int max = 0, granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
 
@@ -258,13 +260,13 @@ struct Graph* radixSortEdgesBySourceOpenMP (struct Graph* graph) {
          for (i = 0; i < bitmask + 1; ++i) {
             vertex_count[(digits / granularity)][i] = 0;
          }
-       //  printf("Done with init for digits: %i,\n", digits);
+         //  printf("Done with init for digits: %i,\n", digits);
          // count occurrence of key: id of a source vertex
          for (i = 0; i < edges; ++i) {
             key = graph->sorted_edges_array[i].src;
             vertex_count[(digits / granularity)][(key >> digits) & (bitmask)]++;
          }
-        // printf("Done with count for digits: %i,\n", digits);
+         // printf("Done with count for digits: %i,\n", digits);
          // transform to cumulative sum
          for (i = 1; i < bitmask + 1; ++i) {
             vertex_count[(digits / granularity)][i] += vertex_count[(digits / granularity)][i - 1];
@@ -273,23 +275,23 @@ struct Graph* radixSortEdgesBySourceOpenMP (struct Graph* graph) {
       }
    }
 
-      for (digits = 0; digits < 32; digits += granularity) {
-         // fill-in the sorted array of edges
-         //if(vertex_count[(digits / granularity)][1] == edges)
-           // break;
-         for (i = edges - 1; i >= 0; --i) {
-            key = graph->sorted_edges_array[i].src;
-            key = (key >> digits) & bitmask;
-            pos = --vertex_count[(digits / granularity)][key];
-            sorted_edges_array[pos] = graph->sorted_edges_array[i];
+   for (digits = 0; digits < 32; digits += granularity) {
+      // fill-in the sorted array of edges
+      //if(vertex_count[(digits / granularity)][1] == edges)
+      // break;
+      for (i = edges - 1; i >= 0; --i) {
+         key = graph->sorted_edges_array[i].src;
+         key = (key >> digits) & bitmask;
+         pos = --vertex_count[(digits / granularity)][key];
+         sorted_edges_array[pos] = graph->sorted_edges_array[i];
 
-         }
-         printf("done with sort for digits: %i\n", digits);
-         // Swap the dirty and clean arrays
-         temp = graph->sorted_edges_array;
-         graph->sorted_edges_array = sorted_edges_array;
-         sorted_edges_array = temp;
       }
+      printf("done with sort for digits: %i\n", digits);
+      // Swap the dirty and clean arrays
+      temp = graph->sorted_edges_array;
+      graph->sorted_edges_array = sorted_edges_array;
+      sorted_edges_array = temp;
+   }
 
    //free the extra arrays
 
@@ -298,9 +300,7 @@ struct Graph* radixSortEdgesBySourceOpenMP (struct Graph* graph) {
    return graph;
 }
 
-struct Graph* radixSortEdgesBySourceMPI (struct Graph* graph){
-
-   struct Graph* radixSortEdgesBySourceOpenMP (struct Graph* graph) {
+struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph) {
       int i, key, pos, digits;
       int max = 0, granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
 
@@ -312,6 +312,18 @@ struct Graph* radixSortEdgesBySourceMPI (struct Graph* graph){
       printf("start maximizer section\n");
 
       /*********** remove jqty, jsize, edges*/
+
+
+      int my_rank;
+      MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+      /*MPI_Barrier(MPI_COMM_WORLD);
+      printf("My-rank : %i\n", my_rank);
+   MPI_Barrier(MPI_COMM_WORLD);*/
+      if (my_rank !=0)
+         my_rank = 1;
+   //MPI_Barrier(MPI_COMM_WORLD);
+   //printf("My-rank : %i\n", my_rank);
+   //MPI_Barrier(MPI_COMM_WORLD);
 
       for (i = 0; i < edges; ++i) {
          if (max < graph->sorted_edges_array[i].src)
@@ -345,58 +357,127 @@ struct Graph* radixSortEdgesBySourceMPI (struct Graph* graph){
 
       struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
       struct Edge *temp;
-      int vertex_count[4][bitmask + 1];
 
-      omp_set_num_threads(4);
-#pragma omp parallel default(none) shared(graph, vertex_count, sorted_edges_array, bitmask, granularity, max, temp, digits) private (key, i, pos)
-      {
-#pragma omp for schedule(static)
-         for (digits = 0; digits < 32; digits += granularity) {
-            // zero Out count array
-            for (i = 0; i < bitmask + 1; ++i) {
-               vertex_count[(digits / granularity)][i] = 0;
-            }
-            //  printf("Done with init for digits: %i,\n", digits);
-            // count occurrence of key: id of a source vertex
-            for (i = 0; i < edges; ++i) {
-               key = graph->sorted_edges_array[i].src;
-               vertex_count[(digits / granularity)][(key >> digits) & (bitmask)]++;
-            }
-            // printf("Done with count for digits: %i,\n", digits);
-            // transform to cumulative sum
-            for (i = 1; i < bitmask + 1; ++i) {
-               vertex_count[(digits / granularity)][i] += vertex_count[(digits / granularity)][i - 1];
-            }
-            //printf("Done with linear xform for digits: %i,\n", digits);
+      int vertex_count[4][bitmask+1];
+      //for (int k=0; k<4;++k)
+        // vertex_count[k] = (int) malloc((int)((bitmask+1)*sizeof(int)));
+
+      for(int k = 0 ; k<4;++k)
+         for(int q = 0; q<=bitmask+1;++q)
+            vertex_count[k][q] = 0;
+  //    printf("%i Array be zeroed\n", my_rank);
+
+      //omp_set_num_threads(4);
+//#pragma omp parallel default(none) shared(graph, vertex_count, sorted_edges_array, bitmask, granularity, max, temp, digits) private (key, i, pos)
+//      {
+//#pragma omp for schedule(static)
+      for (digits = my_rank * (2 * granularity);
+           digits <= (my_rank * 2 * granularity) + granularity; digits = digits + granularity) {
+         // zero Out count array
+         for (i = 0; i < bitmask + 1; ++i) {
+            vertex_count[(digits / granularity)][i] = 0;
          }
-      }
-
-      for (digits = 0; digits < 32; digits += granularity) {
-         // fill-in the sorted array of edges
-         //if(vertex_count[(digits / granularity)][1] == edges)
-         // break;
-         for (i = edges - 1; i >= 0; --i) {
+         //  printf("Done with init for digits: %i,\n", digits);
+         // count occurrence of key: id of a source vertex
+         for (i = 0; i < edges; ++i) {
             key = graph->sorted_edges_array[i].src;
-            key = (key >> digits) & bitmask;
-            pos = --vertex_count[(digits / granularity)][key];
-            sorted_edges_array[pos] = graph->sorted_edges_array[i];
-
+            vertex_count[(digits / granularity)][(key >> digits) & (bitmask)]++;
          }
-         printf("done with sort for digits: %i\n", digits);
-         // Swap the dirty and clean arrays
-         temp = graph->sorted_edges_array;
-         graph->sorted_edges_array = sorted_edges_array;
-         sorted_edges_array = temp;
+        //  printf("Done with count for digits: %i,\n", digits);
+         // transform to cumulative sum
+         for (i = 1; i < bitmask + 1; ++i) {
+            vertex_count[(digits / granularity)][i] += vertex_count[(digits / granularity)][i - 1];
+         }
+       //  printf("Done with linear xform for digits: %i,\n", digits);
       }
 
+  /* MPI_Barrier(MPI_COMM_WORLD);
+   if(my_rank == 0)
+      for(int k = 0 ; k<4;++k) {
+         printf("Rank %i: %i: ", my_rank, k);
+         for (int q = 0; q < 10; ++q)
+            printf("%i.", vertex_count[k][q]);
+         printf("\n");
+
+      }
+   MPI_Barrier(MPI_COMM_WORLD);
+   if(my_rank == 1)
+      for(int k = 0 ; k<4;++k) {
+         printf("Rank %i: %i: ", my_rank, k);
+         for (int q = 0; q < 10; ++q)
+            printf("%i.", vertex_count[k][q]);
+         printf("\n");
+      }
+   MPI_Barrier(MPI_COMM_WORLD);
+   printf("_____________________\n");*/
+
+   if( my_rank == 0) {
+      MPI_Recv(vertex_count[2], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      MPI_Recv(vertex_count[3], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      MPI_Ssend(vertex_count[0], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD);
+      MPI_Ssend(vertex_count[1], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD);
+   }
+   else {
+      MPI_Ssend(vertex_count[2], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+      MPI_Ssend(vertex_count[3], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+      MPI_Recv(vertex_count[0], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      MPI_Recv(vertex_count[1], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+   }
+
+
+  // MPI_Reduce_scatter(vertex_count, vertex_count, 4*(bitmask+1), MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+  /* MPI_Barrier(MPI_COMM_WORLD);
+   if(my_rank == 0)
+      for(int k = 0 ; k<4;++k) {
+         printf("Rank %i: %i: ", my_rank, k);
+         for (int q = 0; q < 10; ++q)
+            printf("%i.", vertex_count[k][q]);
+         printf("\n");
+
+      }
+   MPI_Barrier(MPI_COMM_WORLD);
+   if(my_rank == 1)
+      for(int k = 0 ; k<4;++k) {
+         printf("Rank %i: %i: ", my_rank, k);
+         for (int q = 0; q < 10; ++q)
+            printf("%i.", vertex_count[k][q]);
+         printf("\n");
+      }
+   MPI_Barrier(MPI_COMM_WORLD);*/
+      // }
+    //  if (my_rank == 0) {
+
+         for (digits = 0; digits < 32; digits += granularity) {
+            printf("Start Sort for digits: %i,\n", digits);
+            // fill-in the sorted array of edges
+            //if(vertex_count[(digits / granularity)][1] == edges)
+            // break;
+            for (i = edges - 1; i >= 0; --i) {
+               key = graph->sorted_edges_array[i].src;
+               key = (key >> digits) & bitmask;
+               pos = --vertex_count[(digits / granularity)][key];
+               sorted_edges_array[pos] = graph->sorted_edges_array[i];
+
+            }
+            printf("done with sort for digits: %i\n", digits);
+            // Swap the dirty and clean arrays
+            temp = graph->sorted_edges_array;
+            graph->sorted_edges_array = sorted_edges_array;
+            sorted_edges_array = temp;
+         }
+//      } else {
+//         free(sorted_edges_array);
+//         return NULL;
+//      }
       //free the extra arrays
 
       //free(*vertex_count);
       free(sorted_edges_array);
+
       return graph;
    }
-struct Graph* radixSortEdgesBySourceHybrid (struct Graph* graph){
+   struct Graph *radixSortEdgesBySourceHybrid(struct Graph *graph) {
 
-   // printf("*** START Radix Sort Edges By Source Hybrid*** \n");
-   return graph;
-}
+      // printf("*** START Radix Sort Edges By Source Hybrid*** \n");
+      return graph;
+   }

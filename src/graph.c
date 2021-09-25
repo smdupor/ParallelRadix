@@ -20,7 +20,7 @@ struct Graph * newGraph(const char * fname){
 	loadGraphInfo(fname, graph);
 
 	graph->parents  = (int*) malloc( graph->num_vertices *sizeof(int));
-    graph->vertices = newVertexArray(graph->num_vertices);
+   // graph->vertices = newVertexArray(graph->num_vertices);
     graph->sorted_edges_array = newEdgeArray(graph->num_edges);
 
     for(i = 0; i < graph->num_vertices; i++){
@@ -41,15 +41,15 @@ struct Graph * copyGraph(const struct Graph * orig){
    graph->num_edges = orig->num_edges;
 
    graph->parents = orig->parents;
-   graph->vertices = newVertexArray(graph->num_vertices);
+   //graph->vertices = newVertexArray(graph->num_vertices);
    graph->sorted_edges_array = newEdgeArray(graph->num_edges);
-
+/*
    for(int i=0;i<graph->num_vertices;++i){
       graph->vertices[i].edges_idx = orig->vertices[i].edges_idx;
       graph->vertices[i].in_degree = orig->vertices[i].in_degree;
       graph->vertices[i].out_degree = orig->vertices[i].out_degree;
    }
-
+*/
    for(int i=0; i<graph->num_edges;++i){
       graph->sorted_edges_array[i].dest = orig->sorted_edges_array[i].dest;
       graph->sorted_edges_array[i].src = orig->sorted_edges_array[i].src;
@@ -63,7 +63,7 @@ struct Graph * copyGraph(const struct Graph * orig){
 
 
 void freeGraph(struct Graph *graph){
-    free(graph->vertices);
+   // free(graph->vertices);
     free(graph->sorted_edges_array);
 	free(graph);
 }
