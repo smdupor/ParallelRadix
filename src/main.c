@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
     loadEdgeArray(fnameb, graph);
    printf("\nCopying graphs...");
    fflush(stdout);
- //   struct Graph* graph_ser = copyGraph(graph);
+    struct Graph* graph_ser = copyGraph(graph);
    printf("<1>");
    fflush(stdout);
  //   struct Graph* graph_omp = copyGraph(graph);
@@ -133,10 +133,10 @@ int main(int argc, char **argv) {
    //file_dump(graph, strcat(prefix, "out-cspar"));
   // printMessageWithtime("Parallel Count Sort (Seconds)",Seconds(timer));
 
-  // Start(timer);
-  // graph_ser = serial_count_sort(graph_ser); // you need to parallelize this function
- //  Stop(timer);
- //  printMessageWithtime("Serial Count Sort (Seconds)",Seconds(timer));
+   Start(timer);
+   graph_ser = serial_count_sort(graph_ser); // you need to parallelize this function
+   Stop(timer);
+  printMessageWithtime("Serial Count Sort (Seconds)",Seconds(timer));
   //file_dump(graph_ser, strcat(prefix,"out-csser"));
  //  validation_run(graph_ser, graph, 1);
  //  printf("validation complete\n");
@@ -162,9 +162,12 @@ int main(int argc, char **argv) {
       int my_rank;
       MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
       if(myrank == 0)
-         file_dump(graph_mpi, strcat(prefix,"out-mpi"));
+        // file_dump(graph_mpi, strcat(prefix,"out-mpi"));
 
-  //    validation_run(graph_ser, graph_omp, 1);
+      if(validation_run(graph_ser, graph_mpi, 1) == 0)
+         printf("VALIDATION PASS\n");
+      else
+         printf("VALIDATION FAIL\n");
    }
    else {
       printf("Slave process, exit.");
@@ -172,7 +175,7 @@ int main(int argc, char **argv) {
    }
    MPI_Barrier(MPI_COMM_WORLD);
  freeGraph(graph_mpi);
-
+   freeGraph(graph_ser);
  //Stop(timer2);
  //  printMessageWithtime("Total Sim Time: ", Seconds(timer2) );
 

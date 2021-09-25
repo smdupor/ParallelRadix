@@ -309,7 +309,7 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph) {
       const int jqty = edges / jsize;
       const int jrem = edges - (jsize * jqty);
       int maxes[jqty];
-      printf("start maximizer section\n");
+     // printf("start maximizer section\n");
 
       /*********** remove jqty, jsize, edges*/
 
@@ -448,7 +448,7 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph) {
     //  if (my_rank == 0) {
 
          for (digits = 0; digits < 32; digits += granularity) {
-            printf("Start Sort for digits: %i,\n", digits);
+           // printf("Start Sort for digits: %i,\n", digits);
             // fill-in the sorted array of edges
             //if(vertex_count[(digits / granularity)][1] == edges)
             // break;
@@ -459,7 +459,7 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph) {
                sorted_edges_array[pos] = graph->sorted_edges_array[i];
 
             }
-            printf("done with sort for digits: %i\n", digits);
+           // printf("done with sort for digits: %i\n", digits);
             // Swap the dirty and clean arrays
             temp = graph->sorted_edges_array;
             graph->sorted_edges_array = sorted_edges_array;
