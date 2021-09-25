@@ -91,25 +91,32 @@ int main(int argc, char **argv) {
     //Set number of threads for the program
     omp_set_nested(1);
     omp_set_num_threads(numThreads);
+   struct Timer* timer2 = (struct Timer*) malloc(sizeof(struct Timer));
 
     printf("Number of Threads: %i\n", numThreads);
     printf(" -----------------------------------------------------\n");
-
+   Start(timer2);
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
-   printf("initializing graphs...\n");
+   printf("initializing graphs...");
+   fflush(stdout);
     struct Graph* graph = newGraph(fnameb);
+   printf("\nloading array...");
+   fflush(stdout);
+    loadEdgeArray(fnameb, graph);
+   printf("\nCopying graphs...");
+   fflush(stdout);
     struct Graph* graph_ser = copyGraph(graph);
     struct Graph* graph_omp = copyGraph(graph);
 
-    printf("loading arrays...\n");
+
     // populate the edge array from file
-    loadEdgeArray(fnameb, graph);
-   loadEdgeArray(fnameb, graph_ser);
-   loadEdgeArray(fnameb, graph_omp);
-   printf("Done. Sorting.\n-----------------------------------------------------\n");
+    //loadEdgeArray(fnameb, graph);
+  // loadEdgeArray(fnameb, graph_ser);
+   //loadEdgeArray(fnameb, graph_omp);
+   printf("\nDone. Sorting.\n-----------------------------------------------------\n");
 
    //char prefix[80] = "../";
-   //char prefix[80] =  "/mnt/beegfs/smdupor/";
+   char prefix[80] =  "/mnt/beegfs/smdupor/";
 
     // Serial
     Start(timer);
@@ -122,7 +129,7 @@ int main(int argc, char **argv) {
    graph_ser = serial_count_sort(graph_ser); // you need to parallelize this function
    Stop(timer);
    printMessageWithtime("Serial Count Sort (Seconds)",Seconds(timer));
-  // file_dump(graph_ser, strcat(prefix,"out-csser"));
+  //file_dump(graph_ser, strcat(prefix,"out-csser"));
    validation_run(graph_ser, graph, 1);
    printf("validation complete\n");
 
@@ -132,11 +139,14 @@ int main(int argc, char **argv) {
    Stop(timer);
    printMessageWithtime("Radix Sorting OMP (Seconds)",Seconds(timer));
    //file_dump(graph_omp, strcat(prefix,"out-omp"));
-   validation_run(graph_ser, graph_omp, 2);
+   validation_run(graph_ser, graph_omp, 1);
    printf("validation complete\n");
   freeGraph(graph_omp);
    freeGraph(graph);
  freeGraph(graph_ser);
+
+ Stop(timer2);
+   printMessageWithtime("Total Sim Time: ", Seconds(timer2) );
 
     return 0;
 }

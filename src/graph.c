@@ -24,7 +24,7 @@ struct Graph * newGraph(const char * fname){
     graph->sorted_edges_array = newEdgeArray(graph->num_edges);
 
     for(i = 0; i < graph->num_vertices; i++){
-        graph->parents[i] = -1;  
+        graph->parents[i] = -1;
     }
 
     graph->iteration = 0;

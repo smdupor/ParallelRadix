@@ -215,6 +215,11 @@ struct Graph* radixSortEdgesBySourceOpenMP (struct Graph* graph) {
 
    /*********** remove jqty, jsize, edges*/
 
+   for (i = 0; i < edges; ++i) {
+      if (max < graph->sorted_edges_array[i].src)
+         max = graph->sorted_edges_array[i].src;
+   }
+   /*
 #pragma omp parallel default(none) shared(graph, maxes) private(i)
    {
 #pragma omp single
@@ -238,7 +243,7 @@ struct Graph* radixSortEdgesBySourceOpenMP (struct Graph* graph) {
    for (i = 0; i < jqty; ++i) {
       if (maxes[i] > max)
          max = maxes[i];
-   }
+   }*/
 
    struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
    struct Edge *temp;
@@ -247,27 +252,28 @@ struct Graph* radixSortEdgesBySourceOpenMP (struct Graph* graph) {
    omp_set_num_threads(4);
 #pragma omp parallel default(none) shared(graph, vertex_count, sorted_edges_array, bitmask, granularity, max, temp, digits) private (key, i, pos)
    {
-#pragma omp for schedule(static, 1)
+#pragma omp for schedule(static)
       for (digits = 0; digits < 32; digits += granularity) {
          // zero Out count array
          for (i = 0; i < bitmask + 1; ++i) {
             vertex_count[(digits / granularity)][i] = 0;
          }
-
+       //  printf("Done with init for digits: %i,\n", digits);
          // count occurrence of key: id of a source vertex
          for (i = 0; i < edges; ++i) {
             key = graph->sorted_edges_array[i].src;
             vertex_count[(digits / granularity)][(key >> digits) & (bitmask)]++;
          }
-
+        // printf("Done with count for digits: %i,\n", digits);
          // transform to cumulative sum
          for (i = 1; i < bitmask + 1; ++i) {
             vertex_count[(digits / granularity)][i] += vertex_count[(digits / granularity)][i - 1];
          }
+         //printf("Done with linear xform for digits: %i,\n", digits);
       }
    }
 
-      for (digits = 0; max >> digits > 0; digits += granularity) {
+      for (digits = 0; digits < 32; digits += granularity) {
          // fill-in the sorted array of edges
          if(vertex_count[(digits / granularity)][1] == edges)
             break;
@@ -278,7 +284,7 @@ struct Graph* radixSortEdgesBySourceOpenMP (struct Graph* graph) {
             sorted_edges_array[pos] = graph->sorted_edges_array[i];
 
          }
-
+         printf("done with sort for digits: %i\n", digits);
          // Swap the dirty and clean arrays
          temp = graph->sorted_edges_array;
          graph->sorted_edges_array = sorted_edges_array;
