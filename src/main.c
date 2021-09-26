@@ -191,8 +191,12 @@ int main(int argc, char **argv) {
    MPI_Barrier(MPI_COMM_WORLD);
 
  //freeGraph(graph_mpi);
-   freeGraph(graph_ser);
-   freeGraph(graph_hyb);
+   if(graph_ser)
+      freeGraph(graph_ser);
+   if(graph_hyb)
+      freeGraph(graph_hyb);
+   if(graph)
+     // freeGraph(graph);
 
  //Stop(timer2);
  //  printMessageWithtime("Total Sim Time: ", Seconds(timer2) );
