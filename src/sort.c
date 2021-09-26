@@ -406,7 +406,7 @@ MPI_Barrier(MPI_COMM_WORLD);*/
       const int max = 0, granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
       omp_set_num_threads(4);
       const int edges = graph->num_edges;
-      const int thread_per_bitbucket = omp_get_num_threads()/(32/granularity);
+      const int thread_per_bitbucket = 4;///(8/granularity);
       // 2 threads = 2/4 = 0
       // 4 threads = 4/4 = 1
       // 8th = 8/4 =2
@@ -428,98 +428,67 @@ MPI_Barrier(MPI_COMM_WORLD);*/
       struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
       struct Edge *temp;
 
-      int vertex_count[4][all_blocks];
-      int vertex_count_tmp[4][blocksize];
+      int vertex_count_tmp[4][all_blocks];
+      int vertex_count[4][blocksize];
 
-#pragma omp parallel for default(none) shared (vertex_count) schedule(static)
+#pragma omp parallel for default(none) shared (vertex_count_tmp) schedule(static)
       for(int k = 0 ; k<4;++k)
          for(int q = 0; q<=all_blocks;++q)
-            vertex_count[k][q] = 0;
+            vertex_count_tmp[k][q] = 0;
 
 #pragma omp parallel for default(none) shared (vertex_count) schedule(static)
       for(int k = 0 ; k<4;++k)
          for(int q = 0; q<=blocksize;++q)
             vertex_count[k][q] = 0;
 
-      int thr=0;
+      int thr=0, thr_offset=0;
       int offset=0;
-      int end=0;
-#pragma omp parallel for default(none) shared(vertex_count, graph) private(i, thr, offset, end, key, digits, my_rank) schedule(static)
-      for (digits = my_rank * (2 * granularity); digits <= (my_rank * 2 * granularity) + granularity; digits = digits + granularity) {
+      int end=0, row=0;
 
+      for (digits = my_rank * (2 * granularity); digits <= (my_rank * 2 * granularity) + granularity; digits = digits + granularity) {
+#pragma omp parallel default(none) shared(vertex_count_tmp, graph, digits, my_rank) private(i, thr, thr_offset, offset, end, key, row)
+         {
             thr = omp_get_thread_num();
-            offset = thr * blocksize;
+/*            offset = thr * blocksize;
             end = offset + blocksize;
-            printf("This thread is # %i\n", thr);
+            //printf("This thread is # %i of %i digits %i granularity %i rank %i\n", thr, omp_get_num_threads(), digits, granularity, my_rank);
             // zero Out count array
+#pragma omp for schedule(static)
             for (i = offset; i < end; ++i) {
-               vertex_count[(digits / granularity)][i + offset] = 0;
+               vertex_count[(digits / granularity)][i] = 0;
             }
+*/
             offset = thr * (edges / omp_get_num_threads());
-            end = offset + (edges / omp_get_num_threads());
-            if (thr == omp_get_num_threads() - 1)
-               end = edges;
+            end = offset + (edges / omp_get_num_threads()) - 1;
+            thr_offset = blocksize*thr;
+            row = digits/granularity;
+            if ((edges - end) < (edges/omp_get_num_threads()) && (edges - end) > 0)
+               end = edges-1;
+          //  printf("Thread %i offset %i to end %i of %i of digits %i of rank %i on row %i w threadoff %i of allblock %i\n", thr, offset, end,edges, digits, my_rank, row, thr_offset, all_blocks);
 
             // count occurrence of key: id of a source vertex
             for (i = offset; i < end; ++i) {
-               printf("i at kill was: %i\n", i);
+              //  printf("i at kill was: %i of %i of %i on %i rnk %i addr %08xi\n", i, end, edges, thr, my_rank, *&graph->sorted_edges_array[i-1].src);
                key = graph->sorted_edges_array[i].src;
-               vertex_count[(digits / granularity)][((key >> digits) & (bitmask))+(thr*blocksize)]++;
+               vertex_count_tmp[row][((key >> digits) & bitmask) + thr_offset]++;
             }
          }
-
+#pragma omp barrier
          for (i = 0; i < blocksize; ++i) {
-            for (int j = 0; j < numThreads; ++j)
-               vertex_count_tmp[(digits / granularity)][i] += vertex_count[(digits / granularity)][i + (j * blocksize)];
+            for (int j = 0; j <= numThreads; ++j)
+               vertex_count[(digits / granularity)][i] += vertex_count_tmp[(digits / granularity)][i + (j * blocksize)];
          }
+
+
+      }
+         printf("EXIT PRAGMA LOOP");
+
+
 
          // transform to cumulative sum
-         for (i = 0; i < blocksize; ++i) {
-            vertex_count_tmp[(digits / granularity)][i] += vertex_count[(digits / granularity)][i - 1];
+         for (i = 1; i < blocksize; ++i) {
+            vertex_count[(digits / granularity)][i] += vertex_count[(digits / granularity)][i - 1];
          }
-
-      return NULL;
-/********************************
- *
- * VALIDATION PASS
-This thread is # 0
-This thread is # 2
-This thread is # 1
-This thread is # 3
-This thread is # 3
-==204521== Thread 4:
-==204521== Invalid read of size 4
-==204521==    at 0x403AC8: radixSortEdgesBySourceHybrid._omp_fn.4 (sort.c:467)
-==204521==    by 0x55B405D: gomp_thread_start (team.c:118)
-==204521==    by 0x57CEE64: start_thread (in /usr/lib64/libpthread-2.17.so)
-==204521==    by 0x5AE188C: clone (in /usr/lib64/libc-2.17.so)
-==204521==  Address 0x602f7 is not stack'd, malloc'd or (recently) free'd
-==204521==
-[c2:mpi_rank_1][error_sighandler] Caught error: Segmentation fault (signal 11)
-==204521==
-==204521== Process terminating with default action of signal 11 (SIGSEGV)
-==204521==    at 0x57D64BB: raise (in /usr/lib64/libpthread-2.17.so)
-==204521==    by 0x57D65EF: ??? (in /usr/lib64/libpthread-2.17.so)
-==204521==    by 0x403AC7: radixSortEdgesBySourceHybrid._omp_fn.4 (sort.c:467)
-==204521==    by 0x55B405D: gomp_thread_start (team.c:118)
-==204521==    by 0x57CEE64: start_thread (in /usr/lib64/libpthread-2.17.so)
-==204521==    by 0x5AE188C: clone (in /usr/lib64/libc-2.17.so)
-This thread is # 0
-This thread is # 2
-[c2:mpi_rank_0][error_sighandler] Caught error: Floating point exception (signal 8)
-==204520==
-==204520== Process terminating with default action of signal 8 (SIGFPE)
-==204520==    at 0x57D64BB: raise (in /usr/lib64/libpthread-2.17.so)
-==204520==    by 0x57D65EF: ??? (in /usr/lib64/libpthread-2.17.so)
-==204520==    by 0x403B58: radixSortEdgesBySourceHybrid._omp_fn.4 (sort.c:458)
-==204520==    by 0x55B405D: gomp_thread_start (team.c:118)
-==204520==    by 0x57CEE64: start_thread (in /usr/lib64/libpthread-2.17.so)
-==204520==    by 0x5AE188C: clone (in /usr/lib64/libc-2.17.so)
-
- *
- *
- *
- */
 
       if( my_rank == 0) {
          MPI_Recv(vertex_count[2], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -537,6 +506,7 @@ This thread is # 2
       for (digits = 0; digits < 32; digits += granularity) {
          // fill-in the sorted array of edges
          for (i = edges - 1; i >= 0; --i) {
+
             key = graph->sorted_edges_array[i].src;
             key = (key >> digits) & bitmask;
             pos = --vertex_count[(digits / granularity)][key];

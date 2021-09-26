@@ -113,8 +113,8 @@ int main(int argc, char **argv) {
  //   struct Graph* graph_omp = copyGraph(graph);
    printf("<2>");
    fflush(stdout);
-   struct Graph* graph_hyb = copyGraph(graph);
-   struct Graph* graph_mpi = graph;
+   struct Graph* graph_hyb = graph;
+   //struct Graph* graph_mpi = graph;
 
    printf("<2>");
    fflush(stdout);
@@ -154,24 +154,22 @@ int main(int argc, char **argv) {
 //  freeGraph(graph_omp);
  //  freeGraph(graph);
 
-   Start(timer);
+ /*  Start(timer);
   graph_mpi = radixSortEdgesBySourceMPI(graph_mpi); // you need to parallelize this function
    Stop(timer);
    if(graph_mpi != NULL) {
       printMessageWithtime("Radix Sorting MPI (Seconds)", Seconds(timer));
-     // freeGraph(graph_mpi);
       int myrank;
       MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
       if(myrank == 0)
       if(validation_run(graph_ser, graph_mpi, 1) == 0)
          printf("VALIDATION PASS\n");
-      else
+     else
          printf("VALIDATION FAIL\n");
    }
    else {
       printf("Slave process, exit.");
-      //freeGraph(graph_mpi);
-   }
+   }*/
    MPI_Barrier(MPI_COMM_WORLD);
 
    Start(timer);
@@ -179,7 +177,6 @@ int main(int argc, char **argv) {
    Stop(timer);
    if(graph_hyb != NULL) {
       printMessageWithtime("Radix Sorting Hybrid (Seconds)", Seconds(timer));
-      // freeGraph(graph_mpi);
       int myrank;
       MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
       if(myrank == 0)
@@ -190,12 +187,13 @@ int main(int argc, char **argv) {
    }
    else {
       printf("Slave process, exit.");
-      //freeGraph(graph_mpi);
    }
    MPI_Barrier(MPI_COMM_WORLD);
 
- freeGraph(graph_mpi);
+ //freeGraph(graph_mpi);
    freeGraph(graph_ser);
+   freeGraph(graph_hyb);
+
  //Stop(timer2);
  //  printMessageWithtime("Total Sim Time: ", Seconds(timer2) );
 
