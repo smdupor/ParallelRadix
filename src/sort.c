@@ -464,7 +464,7 @@ MPI_Barrier(MPI_COMM_WORLD);*/
             row = digits/granularity;
             if ((edges - end) < (edges/omp_get_num_threads()) && (edges - end) > 0)
                end = edges;
-            printf("Thread %i offset %i to end %i of %i of digits %i of rank %i on row %i w threadoff %i of allblock %i\n", thr, offset, end,edges, digits, my_rank, row, thr_offset, all_blocks);
+           // printf("Thread %i offset %i to end %i of %i of digits %i of rank %i on row %i w threadoff %i of allblock %i\n", thr, offset, end,edges, digits, my_rank, row, thr_offset, all_blocks);
 
             // count occurrence of key: id of a source vertex
             for (i = offset; i < end; ++i) {
@@ -493,7 +493,7 @@ MPI_Barrier(MPI_COMM_WORLD);*/
          }
       }
 
-         printf("EXIT PRAGMA LOOP ((EDGES ATM: %i EDGES REMT: %i))\n", edges, graph->num_edges);
+/*         printf("EXIT PRAGMA LOOP ((EDGES ATM: %i EDGES REMT: %i))\n", edges, graph->num_edges);
       MPI_Barrier(MPI_COMM_WORLD);
       if(my_rank == 0)
          for(int k = 0 ; k<4;++k) {
@@ -511,13 +511,14 @@ MPI_Barrier(MPI_COMM_WORLD);*/
                printf("%i.", vertex_count[k][q]);
             printf("\n");
          }
-      MPI_Barrier(MPI_COMM_WORLD);
+      MPI_Barrier(MPI_COMM_WORLD);*/
 
       // transform to cumulative sum
       for(int j=0;j < 4;++j)
          for (i = 1; i < blocksize; ++i)
             vertex_count[j][i] += vertex_count[j][i - 1];
 
+/*
 
       MPI_Barrier(MPI_COMM_WORLD);
       if(my_rank == 0)
@@ -539,6 +540,7 @@ MPI_Barrier(MPI_COMM_WORLD);*/
 
       MPI_Barrier(MPI_COMM_WORLD);
       printf("EXIT Linear Xform LOOP");
+*/
 
       if( my_rank == 0) {
          MPI_Recv(vertex_count[2], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -553,7 +555,7 @@ MPI_Barrier(MPI_COMM_WORLD);*/
          MPI_Recv(vertex_count[1], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
       }
       MPI_Barrier(MPI_COMM_WORLD);
-      if(my_rank == 0)
+     /* if(my_rank == 0)
          for(int k = 0 ; k<4;++k) {
             printf("Rank %i: %i: ", my_rank, k);
             for (int q = 0; q < 255; ++q)
@@ -569,7 +571,7 @@ MPI_Barrier(MPI_COMM_WORLD);*/
                printf("%i.", vertex_count[k][q]);
             printf("\n");
          }
-      MPI_Barrier(MPI_COMM_WORLD);
+      MPI_Barrier(MPI_COMM_WORLD);*/
       for (digits = 0; digits < 32; digits += granularity) {
          // fill-in the sorted array of edges
          for (i = edges - 1; i >= 0; --i) {
