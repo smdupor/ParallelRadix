@@ -295,7 +295,6 @@ struct Graph *radixSortEdgesBySourceOpenMP(struct Graph *graph) {
 
    //free the extra arrays
 
-   //free(*vertex_count);
    free(sorted_edges_array);
    return graph;
 }
@@ -309,107 +308,46 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph) {
       const int jqty = edges / jsize;
       const int jrem = edges - (jsize * jqty);
       int maxes[jqty];
-     // printf("start maximizer section\n");
-
-      /*********** remove jqty, jsize, edges*/
-
 
       int my_rank;
       MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-      /*MPI_Barrier(MPI_COMM_WORLD);
-      printf("My-rank : %i\n", my_rank);
-   MPI_Barrier(MPI_COMM_WORLD);*/
+
       if (my_rank !=0)
          my_rank = 1;
-   //MPI_Barrier(MPI_COMM_WORLD);
-   //printf("My-rank : %i\n", my_rank);
-   //MPI_Barrier(MPI_COMM_WORLD);
-
+   /*
       for (i = 0; i < edges; ++i) {
          if (max < graph->sorted_edges_array[i].src)
             max = graph->sorted_edges_array[i].src;
-      }
-      /*
-   #pragma omp parallel default(none) shared(graph, maxes) private(i)
-      {
-   #pragma omp single
-         for (i = 0; i < jqty; ++i) {
-            maxes[i] = 0;
-         }
-   #pragma omp for schedule(static, 256)
-         for (int j = 0; j < jqty; ++j) {
-            for (i = j * jsize; i < (j + 1) * jsize; ++i) {
-               if (maxes[j] < graph->sorted_edges_array[i].src)
-                  maxes[j] = graph->sorted_edges_array[i].src;
-            }
-         }
-   #pragma omp single
-         for (i = jqty * jsize; i < edges; ++i) {
-            if (maxes[jqty - 1] < graph->sorted_edges_array[i].src)
-               maxes[jqty - 1] = graph->sorted_edges_array[i].src;
-         }
-      }
-      max = 0;
-      for (i = 0; i < jqty; ++i) {
-         if (maxes[i] > max)
-            max = maxes[i];
       }*/
 
       struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
       struct Edge *temp;
 
       int vertex_count[4][bitmask+1];
-      //for (int k=0; k<4;++k)
-        // vertex_count[k] = (int) malloc((int)((bitmask+1)*sizeof(int)));
 
       for(int k = 0 ; k<4;++k)
          for(int q = 0; q<=bitmask+1;++q)
             vertex_count[k][q] = 0;
-  //    printf("%i Array be zeroed\n", my_rank);
 
-      //omp_set_num_threads(4);
-//#pragma omp parallel default(none) shared(graph, vertex_count, sorted_edges_array, bitmask, granularity, max, temp, digits) private (key, i, pos)
-//      {
-//#pragma omp for schedule(static)
       for (digits = my_rank * (2 * granularity);
            digits <= (my_rank * 2 * granularity) + granularity; digits = digits + granularity) {
+
          // zero Out count array
          for (i = 0; i < bitmask + 1; ++i) {
             vertex_count[(digits / granularity)][i] = 0;
          }
-         //  printf("Done with init for digits: %i,\n", digits);
+
          // count occurrence of key: id of a source vertex
          for (i = 0; i < edges; ++i) {
             key = graph->sorted_edges_array[i].src;
             vertex_count[(digits / granularity)][(key >> digits) & (bitmask)]++;
          }
-        //  printf("Done with count for digits: %i,\n", digits);
+
          // transform to cumulative sum
          for (i = 1; i < bitmask + 1; ++i) {
             vertex_count[(digits / granularity)][i] += vertex_count[(digits / granularity)][i - 1];
          }
-       //  printf("Done with linear xform for digits: %i,\n", digits);
       }
-
-  /* MPI_Barrier(MPI_COMM_WORLD);
-   if(my_rank == 0)
-      for(int k = 0 ; k<4;++k) {
-         printf("Rank %i: %i: ", my_rank, k);
-         for (int q = 0; q < 10; ++q)
-            printf("%i.", vertex_count[k][q]);
-         printf("\n");
-
-      }
-   MPI_Barrier(MPI_COMM_WORLD);
-   if(my_rank == 1)
-      for(int k = 0 ; k<4;++k) {
-         printf("Rank %i: %i: ", my_rank, k);
-         for (int q = 0; q < 10; ++q)
-            printf("%i.", vertex_count[k][q]);
-         printf("\n");
-      }
-   MPI_Barrier(MPI_COMM_WORLD);
-   printf("_____________________\n");*/
 
    if( my_rank == 0) {
       MPI_Recv(vertex_count[2], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -424,60 +362,193 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph) {
       MPI_Recv(vertex_count[1], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
    }
 
-
-  // MPI_Reduce_scatter(vertex_count, vertex_count, 4*(bitmask+1), MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-  /* MPI_Barrier(MPI_COMM_WORLD);
-   if(my_rank == 0)
-      for(int k = 0 ; k<4;++k) {
-         printf("Rank %i: %i: ", my_rank, k);
-         for (int q = 0; q < 10; ++q)
-            printf("%i.", vertex_count[k][q]);
-         printf("\n");
-
-      }
-   MPI_Barrier(MPI_COMM_WORLD);
-   if(my_rank == 1)
-      for(int k = 0 ; k<4;++k) {
-         printf("Rank %i: %i: ", my_rank, k);
-         for (int q = 0; q < 10; ++q)
-            printf("%i.", vertex_count[k][q]);
-         printf("\n");
-      }
-   MPI_Barrier(MPI_COMM_WORLD);*/
-      // }
-    //  if (my_rank == 0) {
-
          for (digits = 0; digits < 32; digits += granularity) {
-           // printf("Start Sort for digits: %i,\n", digits);
             // fill-in the sorted array of edges
-            //if(vertex_count[(digits / granularity)][1] == edges)
-            // break;
             for (i = edges - 1; i >= 0; --i) {
                key = graph->sorted_edges_array[i].src;
                key = (key >> digits) & bitmask;
                pos = --vertex_count[(digits / granularity)][key];
                sorted_edges_array[pos] = graph->sorted_edges_array[i];
-
             }
-           // printf("done with sort for digits: %i\n", digits);
             // Swap the dirty and clean arrays
             temp = graph->sorted_edges_array;
             graph->sorted_edges_array = sorted_edges_array;
             sorted_edges_array = temp;
          }
-//      } else {
-//         free(sorted_edges_array);
-//         return NULL;
-//      }
-      //free the extra arrays
-
-      //free(*vertex_count);
       free(sorted_edges_array);
 
       return graph;
    }
-   struct Graph *radixSortEdgesBySourceHybrid(struct Graph *graph) {
 
-      // printf("*** START Radix Sort Edges By Source Hybrid*** \n");
+/* MPI_Barrier(MPI_COMM_WORLD);
+if(my_rank == 0)
+ for(int k = 0 ; k<4;++k) {
+    printf("Rank %i: %i: ", my_rank, k);
+    for (int q = 0; q < 10; ++q)
+       printf("%i.", vertex_count[k][q]);
+    printf("\n");
+
+ }
+MPI_Barrier(MPI_COMM_WORLD);
+if(my_rank == 1)
+ for(int k = 0 ; k<4;++k) {
+    printf("Rank %i: %i: ", my_rank, k);
+    for (int q = 0; q < 10; ++q)
+       printf("%i.", vertex_count[k][q]);
+    printf("\n");
+ }
+MPI_Barrier(MPI_COMM_WORLD);*/
+// }
+
+
+   struct Graph *radixSortEdgesBySourceHybrid(struct Graph *graph) {
+      int i, key, pos, digits=0;
+      const int max = 0, granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
+      omp_set_num_threads(4);
+      const int edges = graph->num_edges;
+      const int thread_per_bitbucket = omp_get_num_threads()/(32/granularity);
+      // 2 threads = 2/4 = 0
+      // 4 threads = 4/4 = 1
+      // 8th = 8/4 =2
+      // 16th = 16/4 = 4
+      const int blocksize = bitmask + 1;
+      const int all_blocks = blocksize + (thread_per_bitbucket*blocksize);
+
+      int my_rank=0;
+      MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+
+      if (my_rank !=0)
+         my_rank = 1;
+      /*
+         for (i = 0; i < edges; ++i) {
+            if (max < graph->sorted_edges_array[i].src)
+               max = graph->sorted_edges_array[i].src;
+         }*/
+
+      struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
+      struct Edge *temp;
+
+      int vertex_count[4][all_blocks];
+      int vertex_count_tmp[4][blocksize];
+
+#pragma omp parallel for default(none) shared (vertex_count) schedule(static)
+      for(int k = 0 ; k<4;++k)
+         for(int q = 0; q<=all_blocks;++q)
+            vertex_count[k][q] = 0;
+
+#pragma omp parallel for default(none) shared (vertex_count) schedule(static)
+      for(int k = 0 ; k<4;++k)
+         for(int q = 0; q<=blocksize;++q)
+            vertex_count[k][q] = 0;
+
+      int thr=0;
+      int offset=0;
+      int end=0;
+#pragma omp parallel for default(none) shared(vertex_count, graph) private(i, thr, offset, end, key, digits, my_rank) schedule(static)
+      for (digits = my_rank * (2 * granularity); digits <= (my_rank * 2 * granularity) + granularity; digits = digits + granularity) {
+
+            thr = omp_get_thread_num();
+            offset = thr * blocksize;
+            end = offset + blocksize;
+            printf("This thread is # %i\n", thr);
+            // zero Out count array
+            for (i = offset; i < end; ++i) {
+               vertex_count[(digits / granularity)][i + offset] = 0;
+            }
+            offset = thr * (edges / omp_get_num_threads());
+            end = offset + (edges / omp_get_num_threads());
+            if (thr == omp_get_num_threads() - 1)
+               end = edges;
+
+            // count occurrence of key: id of a source vertex
+            for (i = offset; i < end; ++i) {
+               printf("i at kill was: %i\n", i);
+               key = graph->sorted_edges_array[i].src;
+               vertex_count[(digits / granularity)][((key >> digits) & (bitmask))+(thr*blocksize)]++;
+            }
+         }
+
+         for (i = 0; i < blocksize; ++i) {
+            for (int j = 0; j < numThreads; ++j)
+               vertex_count_tmp[(digits / granularity)][i] += vertex_count[(digits / granularity)][i + (j * blocksize)];
+         }
+
+         // transform to cumulative sum
+         for (i = 0; i < blocksize; ++i) {
+            vertex_count_tmp[(digits / granularity)][i] += vertex_count[(digits / granularity)][i - 1];
+         }
+
+      return NULL;
+/********************************
+ *
+ * VALIDATION PASS
+This thread is # 0
+This thread is # 2
+This thread is # 1
+This thread is # 3
+This thread is # 3
+==204521== Thread 4:
+==204521== Invalid read of size 4
+==204521==    at 0x403AC8: radixSortEdgesBySourceHybrid._omp_fn.4 (sort.c:467)
+==204521==    by 0x55B405D: gomp_thread_start (team.c:118)
+==204521==    by 0x57CEE64: start_thread (in /usr/lib64/libpthread-2.17.so)
+==204521==    by 0x5AE188C: clone (in /usr/lib64/libc-2.17.so)
+==204521==  Address 0x602f7 is not stack'd, malloc'd or (recently) free'd
+==204521==
+[c2:mpi_rank_1][error_sighandler] Caught error: Segmentation fault (signal 11)
+==204521==
+==204521== Process terminating with default action of signal 11 (SIGSEGV)
+==204521==    at 0x57D64BB: raise (in /usr/lib64/libpthread-2.17.so)
+==204521==    by 0x57D65EF: ??? (in /usr/lib64/libpthread-2.17.so)
+==204521==    by 0x403AC7: radixSortEdgesBySourceHybrid._omp_fn.4 (sort.c:467)
+==204521==    by 0x55B405D: gomp_thread_start (team.c:118)
+==204521==    by 0x57CEE64: start_thread (in /usr/lib64/libpthread-2.17.so)
+==204521==    by 0x5AE188C: clone (in /usr/lib64/libc-2.17.so)
+This thread is # 0
+This thread is # 2
+[c2:mpi_rank_0][error_sighandler] Caught error: Floating point exception (signal 8)
+==204520==
+==204520== Process terminating with default action of signal 8 (SIGFPE)
+==204520==    at 0x57D64BB: raise (in /usr/lib64/libpthread-2.17.so)
+==204520==    by 0x57D65EF: ??? (in /usr/lib64/libpthread-2.17.so)
+==204520==    by 0x403B58: radixSortEdgesBySourceHybrid._omp_fn.4 (sort.c:458)
+==204520==    by 0x55B405D: gomp_thread_start (team.c:118)
+==204520==    by 0x57CEE64: start_thread (in /usr/lib64/libpthread-2.17.so)
+==204520==    by 0x5AE188C: clone (in /usr/lib64/libc-2.17.so)
+
+ *
+ *
+ *
+ */
+
+      if( my_rank == 0) {
+         MPI_Recv(vertex_count[2], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+         MPI_Recv(vertex_count[3], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+         MPI_Ssend(vertex_count[0], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD);
+         MPI_Ssend(vertex_count[1], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD);
+      }
+      else {
+         MPI_Ssend(vertex_count[2], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+         MPI_Ssend(vertex_count[3], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+         MPI_Recv(vertex_count[0], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+         MPI_Recv(vertex_count[1], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      }
+
+      for (digits = 0; digits < 32; digits += granularity) {
+         // fill-in the sorted array of edges
+         for (i = edges - 1; i >= 0; --i) {
+            key = graph->sorted_edges_array[i].src;
+            key = (key >> digits) & bitmask;
+            pos = --vertex_count[(digits / granularity)][key];
+            sorted_edges_array[pos] = graph->sorted_edges_array[i];
+         }
+         // Swap the dirty and clean arrays
+         temp = graph->sorted_edges_array;
+         graph->sorted_edges_array = sorted_edges_array;
+         sorted_edges_array = temp;
+      }
+      free(sorted_edges_array);
+
       return graph;
+
    }
