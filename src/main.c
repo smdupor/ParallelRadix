@@ -198,8 +198,8 @@ int main(int argc, char **argv) {
    if(graph)
      // freeGraph(graph);
 
- //Stop(timer2);
- //  printMessageWithtime("Total Sim Time: ", Seconds(timer2) );
+ Stop(timer2);
+   printMessageWithtime("Total Sim Time: ", Seconds(timer2) );
 
 
    MPI_Finalize();
