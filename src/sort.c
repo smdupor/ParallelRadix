@@ -334,7 +334,7 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
    Stop(&timer[INIT]);
    //   for (digits = my_rank * (2 * granularity);
      //      digits <= (my_rank * 2 * granularity) + granularity; digits = digits + granularity) {
-   digits = my_rank * (2 * granularity);
+   digits = my_rank * granularity;
          // zero Out count array
          for (i = 0; i < bitmask + 1; ++i) {
             vertex_count[(digits / granularity)][i] = 0;
