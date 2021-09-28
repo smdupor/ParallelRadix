@@ -306,7 +306,13 @@ struct Graph *radixSortEdgesBySourceOpenMP(struct Graph *graph, struct Timer *ti
 }
 
 struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer) {
-      int i, key, pos, digits;
+   Start(&timer[INIT]);
+   Start(&timer[COUNT]);
+   Start(&timer[CRUSH]);
+   Start(&timer[XFORM]);
+   Start((&timer[MPI_MSG]));
+   Start(&timer[SORT]);
+   int i, key, pos, digits;
       int granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
 
       const int edges = graph->num_edges;
@@ -325,7 +331,7 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
       for(int k = 0 ; k<4;++k)
          for(int q = 0; q<=bitmask+1;++q)
             vertex_count[k][q] = 0;
-
+   Stop(&timer[INIT]);
       for (digits = my_rank * (2 * granularity);
            digits <= (my_rank * 2 * granularity) + granularity; digits = digits + granularity) {
 
@@ -345,6 +351,9 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
             vertex_count[(digits / granularity)][i] += vertex_count[(digits / granularity)][i - 1];
          }
       }
+   Stop(&timer[COUNT]);
+   Stop(&timer[CRUSH]);
+   Stop(&timer[XFORM]);
 
    if( my_rank == 0) {
       MPI_Recv(vertex_count[2], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -358,8 +367,9 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
       MPI_Recv(vertex_count[0], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
       MPI_Recv(vertex_count[1], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
    }
+   Stop((&timer[MPI_MSG]));
 
-         for (digits = 0; digits < 32; digits += granularity) {
+   for (digits = 0; digits < 32; digits += granularity) {
             // fill-in the sorted array of edges
             for (i = edges - 1; i >= 0; --i) {
                key = graph->sorted_edges_array[i].src;
@@ -372,6 +382,7 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
             graph->sorted_edges_array = sorted_edges_array;
             sorted_edges_array = temp;
          }
+   Stop(&timer[SORT]);
       free(sorted_edges_array);
 
       return graph;

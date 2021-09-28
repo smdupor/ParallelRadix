@@ -121,8 +121,8 @@ int main(int argc, char **argv) {
       //struct Graph *graph_omp = copyGraph(graph);
       printf("<2>");
       fflush(stdout);
-      struct Graph *graph_hyb = graph;
-      //struct Graph* graph_mpi = graph;
+     // struct Graph *graph_hyb = graph;
+      struct Graph* graph_mpi = graph;
 
       printf("<2>");
       fflush(stdout);
@@ -131,7 +131,7 @@ int main(int argc, char **argv) {
       //loadEdgeArray(fnameb, graph);
       // loadEdgeArray(fnameb, graph_ser);
       //loadEdgeArray(fnameb, graph_omp);
-      printf("\nDone. Sorting.\n-----------------------------------------------------\n");
+      printf("\nDone. Sorting. Edges: %i Vertices: %i\n-----------------------------------------------------\n", graph->num_edges, graph->num_vertices);
 
       //char prefix[80] = "../";
       //char prefix[80] =  "/mnt/beegfs/smdupor/";
@@ -168,24 +168,28 @@ int main(int argc, char **argv) {
 
       //  freeGraph(graph);
 
-      /*  Start(timer);
-       graph_mpi = radixSortEdgesBySourceMPI(graph_mpi); // you need to parallelize this function
+        Start(timer);
+       graph_mpi = radixSortEdgesBySourceMPI(graph_mpi, timers); // you need to parallelize this function
         Stop(timer);
-        if(graph_mpi != NULL) {
-           printMessageWithtime("Radix Sorting MPI (Seconds)", Seconds(timer));
-           int myrank;
-           MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-           if(myrank == 0)
-           if(validation_run(graph_ser, graph_mpi, 1) == 0)
-              printf("VALIDATION PASS\n");
-          else
-              printf("VALIDATION FAIL\n");
-        }
-        else {
-           printf("Slave process, exit.");
-        }*/
+          if (graph_mpi != NULL) {
+            printMessageWithtime("Radix Sorting MPI (Seconds)", Seconds(timer));
+            printf("InitCountCrushXformMPImsgSort: %f, %f, %f, %f, %f, %f \n", Millisecs(&timers[INIT]),
+                   Millisecs(&timers[COUNT]),
+                   Millisecs(&timers[CRUSH]), Millisecs(&timers[XFORM]), Millisecs(&timers[MPI_MSG]),
+                   Millisecs(&timers[SORT]));
+            int myrank;
+            MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+            if (myrank == 0) {
+               if (validation_run(graph_ser, graph_mpi, 1) == 0)
+                  printf("VALIDATION PASS\n");
+               else
+                  printf("VALIDATION FAIL\n");
+            }
+         } else {
+            printf("Slave process, exit.");
+         }
       //if (myrank == 1) {
-         MPI_Barrier(MPI_COMM_WORLD);
+     /*    MPI_Barrier(MPI_COMM_WORLD);
 
          Start(timer);
          graph_hyb = radixSortEdgesBySourceHybrid(graph_hyb, timers); // you need to parallelize this function
@@ -208,12 +212,12 @@ int main(int argc, char **argv) {
             printf("Slave process, exit.");
          }
          MPI_Barrier(MPI_COMM_WORLD);
-     // }
-      //freeGraph(graph_mpi);
+     // }*/
+      freeGraph(graph_mpi);
       if (graph_ser)
          freeGraph(graph_ser);
-      if (graph_hyb)
-         freeGraph(graph_hyb);
+      //if (graph_hyb)
+      //   freeGraph(graph_hyb);
       if (graph)
          // freeGraph(graph);
 
