@@ -15,6 +15,8 @@
 
 int numThreads;
 
+
+
 void file_dump(const struct Graph *graph, const char *fnp);
 int validation_run(const struct Graph *serial, const struct Graph *test, short control);
 
@@ -94,6 +96,7 @@ int main(int argc, char **argv) {
     omp_set_nested(1);
     omp_set_num_threads(numThreads);
    struct Timer* timer2 = (struct Timer*) malloc(sizeof(struct Timer));
+   struct Timer *timers = (struct Timer*) malloc(7*sizeof(struct Timer));
 
     printf("Number of Threads: %i\n", numThreads);
     printf(" -----------------------------------------------------\n");
@@ -126,7 +129,7 @@ int main(int argc, char **argv) {
    printf("\nDone. Sorting.\n-----------------------------------------------------\n");
 
    //char prefix[80] = "../";
-   char prefix[80] =  "/mnt/beegfs/smdupor/";
+   //char prefix[80] =  "/mnt/beegfs/smdupor/";
 
     // Serial
   //  Start(timer);
@@ -136,7 +139,7 @@ int main(int argc, char **argv) {
   // printMessageWithtime("Parallel Count Sort (Seconds)",Seconds(timer));
 
    Start(timer);
-   graph_ser = serial_count_sort(graph_ser); // you need to parallelize this function
+   graph_ser = serial_count_sort(graph_ser, timers); // you need to parallelize this function
    Stop(timer);
   printMessageWithtime("Serial Count Sort (Seconds)",Seconds(timer));
   //file_dump(graph_ser, strcat(prefix,"out-csser"));
@@ -173,17 +176,20 @@ int main(int argc, char **argv) {
    MPI_Barrier(MPI_COMM_WORLD);
 
    Start(timer);
-   graph_hyb = radixSortEdgesBySourceHybrid(graph_hyb); // you need to parallelize this function
+   graph_hyb = radixSortEdgesBySourceHybrid(graph_hyb, timers); // you need to parallelize this function
    Stop(timer);
    if(graph_hyb != NULL) {
       printMessageWithtime("Radix Sorting Hybrid (Seconds)", Seconds(timer));
+      printf("Init: %f Count: %f Crush: %f Xform: %f MPImsg: %f Sort: %f\n", Millisecs(&timers[INIT]), Millisecs(&timers[COUNT]),
+             Millisecs(&timers[CRUSH]), Millisecs(&timers[XFORM]), Millisecs(&timers[MPI_MSG]), Millisecs(&timers[SORT]));
       int myrank;
       MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-      if(myrank == 0)
-         if(validation_run(graph_ser, graph_hyb, 1) == 0)
+      if(myrank == 0) {
+         if (validation_run(graph_ser, graph_hyb, 1) == 0)
             printf("VALIDATION PASS\n");
          else
             printf("VALIDATION FAIL\n");
+      }
    }
    else {
       printf("Slave process, exit.");

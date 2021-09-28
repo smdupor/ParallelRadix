@@ -7,6 +7,8 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
+enum POS {EXPERIMENT=0, INIT=1, COUNT=2, XFORM=3, MPI_MSG=4, SORT=5, CRUSH=6 };
+
 struct Timer{
   struct timeval start_time;
   struct timeval elapsed_time;

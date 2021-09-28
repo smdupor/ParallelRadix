@@ -64,7 +64,7 @@ struct Graph *loadEdgeArray(const char *fname, struct Graph *graph) {
 void loadEdgeArrayInfo(const char *fname, int *numOfVertices, int *numOfEdges) {
    FILE *pText;
    int size = 0, i;
-   int src = 0, dest = 0, num_vertices = 0, tmp=0;
+   int src = 0, dest = 0, num_vertices = 0;
    pText = fopen(fname, "r");
 
    if (pText == NULL) {
