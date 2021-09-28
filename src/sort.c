@@ -320,8 +320,8 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
       int my_rank;
       MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
-      if (my_rank !=0)
-         my_rank = 1;
+   //   if (my_rank !=0)
+     //    my_rank = 1;
 
       struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
       struct Edge *temp;
@@ -332,42 +332,45 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
          for(int q = 0; q<=bitmask+1;++q)
             vertex_count[k][q] = 0;
    Stop(&timer[INIT]);
-      for (digits = my_rank * (2 * granularity);
-           digits <= (my_rank * 2 * granularity) + granularity; digits = digits + granularity) {
-
+   //   for (digits = my_rank * (2 * granularity);
+     //      digits <= (my_rank * 2 * granularity) + granularity; digits = digits + granularity) {
+   digits = my_rank * (2 * granularity);
          // zero Out count array
          for (i = 0; i < bitmask + 1; ++i) {
             vertex_count[(digits / granularity)][i] = 0;
          }
-
+   Stop(&timer[COUNT]);
          // count occurrence of key: id of a source vertex
          for (i = 0; i < edges; ++i) {
             key = graph->sorted_edges_array[i].src;
             vertex_count[(digits / granularity)][(key >> digits) & (bitmask)]++;
          }
-
+   Stop(&timer[CRUSH]);
          // transform to cumulative sum
          for (i = 1; i < bitmask + 1; ++i) {
             vertex_count[(digits / granularity)][i] += vertex_count[(digits / granularity)][i - 1];
          }
-      }
-   Stop(&timer[COUNT]);
-   Stop(&timer[CRUSH]);
+     // }
+
+
    Stop(&timer[XFORM]);
 
    if( my_rank == 0) {
-      MPI_Recv(vertex_count[2], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      MPI_Recv(vertex_count[3], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      MPI_Ssend(vertex_count[0], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD);
-      MPI_Ssend(vertex_count[1], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD);
+      MPI_Recv(vertex_count[1], bitmask+1, MPI_INT, 1, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      MPI_Recv(vertex_count[2], bitmask+1, MPI_INT, 2, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      MPI_Recv(vertex_count[3], bitmask+1, MPI_INT, 3, 3, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+     // MPI_Ssend(vertex_count[0], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD);
+      //MPI_Ssend(vertex_count[1], bitmask+1, MPI_INT, 1, 0, MPI_COMM_WORLD);
    }
    else {
-      MPI_Ssend(vertex_count[2], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-      MPI_Ssend(vertex_count[3], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-      MPI_Recv(vertex_count[0], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      MPI_Recv(vertex_count[1], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      MPI_Ssend(vertex_count[my_rank], bitmask+1, MPI_INT, 0, my_rank, MPI_COMM_WORLD);
+      //MPI_Ssend(vertex_count[3], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+      //MPI_Recv(vertex_count[0], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      //MPI_Recv(vertex_count[1], bitmask+1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
    }
    Stop((&timer[MPI_MSG]));
+   return graph;
 
    for (digits = 0; digits < 32; digits += granularity) {
             // fill-in the sorted array of edges

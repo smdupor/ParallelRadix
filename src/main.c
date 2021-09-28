@@ -171,22 +171,25 @@ int main(int argc, char **argv) {
         Start(timer);
        graph_mpi = radixSortEdgesBySourceMPI(graph_mpi, timers); // you need to parallelize this function
         Stop(timer);
-          if (graph_mpi != NULL) {
+   int my_rank;
+   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+          if (graph_mpi != NULL && my_rank==0) {
             printMessageWithtime("Radix Sorting MPI (Seconds)", Seconds(timer));
             printf("InitCountCrushXformMPImsgSort: %f, %f, %f, %f, %f, %f \n", Millisecs(&timers[INIT]),
                    Millisecs(&timers[COUNT]),
                    Millisecs(&timers[CRUSH]), Millisecs(&timers[XFORM]), Millisecs(&timers[MPI_MSG]),
                    Millisecs(&timers[SORT]));
-            int myrank;
-            MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-            if (myrank == 0) {
                if (validation_run(graph_ser, graph_mpi, 1) == 0)
                   printf("VALIDATION PASS\n");
                else
                   printf("VALIDATION FAIL\n");
-            }
+
          } else {
-            printf("Slave process, exit.");
+            printf("Slave process, exit, Radix MPI.\n");
+
+             printf("InitCountCrushXformMPImsgSort: %f, %f, %f, %f, %f \n", Millisecs(&timers[INIT]),
+                    Millisecs(&timers[COUNT]),
+                    Millisecs(&timers[CRUSH]), Millisecs(&timers[XFORM]), Millisecs(&timers[MPI_MSG]));
          }
       //if (myrank == 1) {
      /*    MPI_Barrier(MPI_COMM_WORLD);
