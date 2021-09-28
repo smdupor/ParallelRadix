@@ -50,10 +50,10 @@ struct Graph *loadEdgeArray(const char *fname, struct Graph *graph) {
 
       graph->sorted_edges_array[size].src = src;
       graph->sorted_edges_array[size].dest = dest;
-      if(size % 0xfffff == 0) {
+     /* if(size % 0xfffff == 0) {
          printf(".");
          fflush(stdout);
-      }
+      }*/
 
       size++;
    }
@@ -73,10 +73,10 @@ void loadEdgeArrayInfo(const char *fname, int *numOfVertices, int *numOfEdges) {
    }
    while (1) {
       size++;
-      if(size % 0xfffff == 0) {
+     /* if(size % 0xfffff == 0) {
          printf(".");
          fflush(stdout);
-      }
+      }*/
       i = fscanf(pText, "%d\t%d\n", &src, &dest);
       if (i == EOF)
          break;

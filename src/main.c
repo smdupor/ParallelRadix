@@ -98,116 +98,129 @@ int main(int argc, char **argv) {
    struct Timer* timer2 = (struct Timer*) malloc(sizeof(struct Timer));
    struct Timer *timers = (struct Timer*) malloc(7*sizeof(struct Timer));
 
-    printf("Number of Threads: %i\n", numThreads);
-    printf(" -----------------------------------------------------\n");
-   Start(timer2);
-    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
-   printf("initializing graphs...");
-   fflush(stdout);
-    struct Graph* graph = newGraph(fnameb);
-   printf("\nloading array...");
-   fflush(stdout);
-    loadEdgeArray(fnameb, graph);
-   printf("\nCopying graphs...");
-   fflush(stdout);
-    struct Graph* graph_ser = copyGraph(graph);
-   printf("<1>");
-   fflush(stdout);
- //   struct Graph* graph_omp = copyGraph(graph);
-   printf("<2>");
-   fflush(stdout);
-   struct Graph* graph_hyb = graph;
-   //struct Graph* graph_mpi = graph;
+  /* int myrank;
+   MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+   if(myrank==0) {
+*/
 
-   printf("<2>");
-   fflush(stdout);
+      //printf("Number of Threads: %i\n", numThreads);
+     // printf(" -----------------------------------------------------\n");
+      Start(timer2);
+      struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+      printf("initializing graphs...\n");
+      fflush(stdout);
+      struct Graph *graph = newGraph(fnameb);
+      printf("loading array...\n");
+      fflush(stdout);
+      loadEdgeArray(fnameb, graph);
+      printf("Copying graphs...\n");
+      fflush(stdout);
+      struct Graph *graph_ser = copyGraph(graph);
+      printf("<1>");
+      fflush(stdout);
+      //struct Graph *graph_omp = copyGraph(graph);
+      printf("<2>");
+      fflush(stdout);
+      struct Graph *graph_hyb = graph;
+      //struct Graph* graph_mpi = graph;
 
-    // populate the edge array from file
-    //loadEdgeArray(fnameb, graph);
-  // loadEdgeArray(fnameb, graph_ser);
-   //loadEdgeArray(fnameb, graph_omp);
-   printf("\nDone. Sorting.\n-----------------------------------------------------\n");
+      printf("<2>");
+      fflush(stdout);
 
-   //char prefix[80] = "../";
-   //char prefix[80] =  "/mnt/beegfs/smdupor/";
+      // populate the edge array from file
+      //loadEdgeArray(fnameb, graph);
+      // loadEdgeArray(fnameb, graph_ser);
+      //loadEdgeArray(fnameb, graph_omp);
+      printf("\nDone. Sorting.\n-----------------------------------------------------\n");
 
-    // Serial
-  //  Start(timer);
- //   graph = countSortEdgesBySource(graph); // you need to parallelize this function
-   //   Stop(timer);
-   //file_dump(graph, strcat(prefix, "out-cspar"));
-  // printMessageWithtime("Parallel Count Sort (Seconds)",Seconds(timer));
+      //char prefix[80] = "../";
+      //char prefix[80] =  "/mnt/beegfs/smdupor/";
 
-   Start(timer);
-   graph_ser = serial_count_sort(graph_ser, timers); // you need to parallelize this function
-   Stop(timer);
-  printMessageWithtime("Serial Count Sort (Seconds)",Seconds(timer));
-  //file_dump(graph_ser, strcat(prefix,"out-csser"));
- //  validation_run(graph_ser, graph, 1);
- //  printf("validation complete\n");
+      // Serial
+      //  Start(timer);
+      //   graph = countSortEdgesBySource(graph); // you need to parallelize this function
+      //   Stop(timer);
+      //file_dump(graph, strcat(prefix, "out-cspar"));
+      // printMessageWithtime("Parallel Count Sort (Seconds)",Seconds(timer));
 
-   // OMP Radix
- //  Start(timer);
- //   graph_omp = radixSortEdgesBySourceOpenMP(graph_omp); // you need to parallelize this function
-//   Stop(timer);
- //  printMessageWithtime("Radix Sorting OMP (Seconds)",Seconds(timer));
-   //file_dump(graph_omp, strcat(prefix,"out-omp"));
- //  validation_run(graph_ser, graph_omp, 1);
- //  printf("validation complete\n");
-//  freeGraph(graph_omp);
- //  freeGraph(graph);
+      Start(timer);
+      graph_ser = serial_count_sort(graph_ser, timers); // you need to parallelize this function
+      Stop(timer);
+      printMessageWithtime("Serial Count Sort (Seconds)", Seconds(timer));
+      //file_dump(graph_ser, strcat(prefix,"out-csser"));
+      //  validation_run(graph_ser, graph, 1);
+      //  printf("validation complete\n");
 
- /*  Start(timer);
-  graph_mpi = radixSortEdgesBySourceMPI(graph_mpi); // you need to parallelize this function
-   Stop(timer);
-   if(graph_mpi != NULL) {
-      printMessageWithtime("Radix Sorting MPI (Seconds)", Seconds(timer));
-      int myrank;
-      MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-      if(myrank == 0)
-      if(validation_run(graph_ser, graph_mpi, 1) == 0)
-         printf("VALIDATION PASS\n");
-     else
-         printf("VALIDATION FAIL\n");
-   }
-   else {
-      printf("Slave process, exit.");
-   }*/
-   MPI_Barrier(MPI_COMM_WORLD);
+      // OMP Radix
+    /*  Start(timer);
+      graph_omp = radixSortEdgesBySourceOpenMP(graph_omp, timers); // you need to parallelize this function
+      Stop(timer);
+      printMessageWithtime("Radix Sorting OMP (Seconds)", Seconds(timer));
+      printf("Init: %f Count: %f Crush: %f Xform: %f MPImsg: %f Sort: %f\n", Millisecs(&timers[INIT]),
+             Millisecs(&timers[COUNT]),
+             Millisecs(&timers[CRUSH]), Millisecs(&timers[XFORM]), Millisecs(&timers[MPI_MSG]),
+             Millisecs(&timers[SORT]));
+      //file_dump(graph_omp, strcat(prefix,"out-omp"));
+      if (validation_run(graph_ser, graph_omp, 1) == 0);
+      printf("validation PASS\n");
+      freeGraph(graph_omp);
+*/
 
-   Start(timer);
-   graph_hyb = radixSortEdgesBySourceHybrid(graph_hyb, timers); // you need to parallelize this function
-   Stop(timer);
-   if(graph_hyb != NULL) {
-      printMessageWithtime("Radix Sorting Hybrid (Seconds)", Seconds(timer));
-      printf("Init: %f Count: %f Crush: %f Xform: %f MPImsg: %f Sort: %f\n", Millisecs(&timers[INIT]), Millisecs(&timers[COUNT]),
-             Millisecs(&timers[CRUSH]), Millisecs(&timers[XFORM]), Millisecs(&timers[MPI_MSG]), Millisecs(&timers[SORT]));
-      int myrank;
-      MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-      if(myrank == 0) {
-         if (validation_run(graph_ser, graph_hyb, 1) == 0)
-            printf("VALIDATION PASS\n");
-         else
-            printf("VALIDATION FAIL\n");
-      }
-   }
-   else {
-      printf("Slave process, exit.");
-   }
-   MPI_Barrier(MPI_COMM_WORLD);
+      //  freeGraph(graph);
 
- //freeGraph(graph_mpi);
-   if(graph_ser)
-      freeGraph(graph_ser);
-   if(graph_hyb)
-      freeGraph(graph_hyb);
-   if(graph)
-     // freeGraph(graph);
+      /*  Start(timer);
+       graph_mpi = radixSortEdgesBySourceMPI(graph_mpi); // you need to parallelize this function
+        Stop(timer);
+        if(graph_mpi != NULL) {
+           printMessageWithtime("Radix Sorting MPI (Seconds)", Seconds(timer));
+           int myrank;
+           MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+           if(myrank == 0)
+           if(validation_run(graph_ser, graph_mpi, 1) == 0)
+              printf("VALIDATION PASS\n");
+          else
+              printf("VALIDATION FAIL\n");
+        }
+        else {
+           printf("Slave process, exit.");
+        }*/
+      //if (myrank == 1) {
+         MPI_Barrier(MPI_COMM_WORLD);
 
- Stop(timer2);
-   printMessageWithtime("Total Sim Time: ", Seconds(timer2) );
+         Start(timer);
+         graph_hyb = radixSortEdgesBySourceHybrid(graph_hyb, timers); // you need to parallelize this function
+         Stop(timer);
+         if (graph_hyb != NULL) {
+            printMessageWithtime("Radix Sorting Hybrid (Seconds)", Seconds(timer));
+            printf("InitCountCrushXformMPImsgSort: %f, %f, %f, %f, %f, %f \n", Millisecs(&timers[INIT]),
+                   Millisecs(&timers[COUNT]),
+                   Millisecs(&timers[CRUSH]), Millisecs(&timers[XFORM]), Millisecs(&timers[MPI_MSG]),
+                   Millisecs(&timers[SORT]));
+            int myrank;
+            MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+            if (myrank == 0) {
+               if (validation_run(graph_ser, graph_hyb, 1) == 0)
+                  printf("VALIDATION PASS\n");
+               else
+                  printf("VALIDATION FAIL\n");
+            }
+         } else {
+            printf("Slave process, exit.");
+         }
+         MPI_Barrier(MPI_COMM_WORLD);
+     // }
+      //freeGraph(graph_mpi);
+      if (graph_ser)
+         freeGraph(graph_ser);
+      if (graph_hyb)
+         freeGraph(graph_hyb);
+      if (graph)
+         // freeGraph(graph);
 
+         Stop(timer2);
+      printMessageWithtime("Total Sim Time: ", Seconds(timer2));
 
+   //}///////////// TODO MPI DISABLATION
    MPI_Finalize();
 
     return 0;

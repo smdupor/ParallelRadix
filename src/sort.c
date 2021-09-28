@@ -147,7 +147,110 @@ struct Graph *radix_serial(struct Graph *graph, struct Timer *timer) {
 }
 
 struct Graph *radixSortEdgesBySourceOpenMP(struct Graph *graph, struct Timer *timer) {
-   int i, key, pos, digits;
+   int i, key, pos, digits=0;
+   const int granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
+   const int iters = 32/granularity;
+
+   const int thread_per_bitbucket = 2;
+   omp_set_nested(1);
+   omp_set_num_threads(thread_per_bitbucket*4);
+   printf("OMP Num THR: %i", thread_per_bitbucket*4);
+
+   const int edges = graph->num_edges;
+   const int blocksize = bitmask + 1;
+   const int all_blocks = blocksize + (thread_per_bitbucket*blocksize);
+
+   struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
+   struct Edge *temp;
+
+   int vertex_count_tmp[iters][all_blocks];
+   int vertex_count[iters][blocksize];
+   Start(&timer[INIT]);
+
+   for (int k = 0; k < iters; ++k) {
+      for (int q = 0; q < all_blocks; ++q)
+         vertex_count_tmp[k][q] = 0;
+      for (int q = 0; q < blocksize; ++q)
+         vertex_count[k][q] = 0;
+   }
+
+   Stop(&timer[INIT]);
+
+   int thr=0, thr_offset=0;
+   int offset=0;
+   int end=0, row=0;
+
+   Start(&timer[COUNT]);
+#pragma omp parallel for default(none) shared(vertex_count_tmp, graph, digits) private(i, thr, thr_offset, offset, end, key, row)
+   for (digits = 0; digits < 32; digits = digits + granularity) {
+#pragma omp parallel default(none) shared(vertex_count_tmp, graph, digits) private(i, thr, thr_offset, offset, end, key, row) num_threads(4)
+      {
+         thr = omp_get_thread_num();
+         offset = thr * (edges / omp_get_num_threads());
+         end = offset + (edges / omp_get_num_threads());
+         thr_offset = blocksize*thr;
+         row = digits/granularity;
+        // printf("thread %i Row %i thr_off %i start %i end %i \n ", thr, row, thr_offset, offset, end);
+         if ((edges - end) < (edges/omp_get_num_threads()) && (edges - end) > 0)
+            end = edges;
+
+         // count occurrence of key: id of a source vertex
+         for (i = offset; i < end; ++i) {
+            //  printf("i at kill was: %i of %i of %i on %i rnk %i addr %08xi\n", i, end, edges, thr, my_rank, *&graph->sorted_edges_array[i-1].src);
+            key = graph->sorted_edges_array[i].src;
+            vertex_count_tmp[row][((key >> digits) & bitmask) + thr_offset]++;
+
+         }
+
+      }
+   }
+   const int stop = bitmask+1;
+   int joffset=0;
+   Stop(&timer[COUNT]);
+
+   Start(&timer[CRUSH]);
+
+   for(int f = 0; f<iters; ++f){
+      for (int j = 0; j < thread_per_bitbucket; ++j){
+         joffset = j*stop;
+         for (i = 0; i < stop; ++i) {
+            if(j==0)
+               vertex_count[f][i] = vertex_count_tmp[f][i];
+            else
+               vertex_count[f][i] += vertex_count_tmp[f][i + joffset];
+         }
+      }
+   }
+   Stop(&timer[CRUSH]);
+   Start(&timer[XFORM]);
+
+   for(int j=0;j < iters;++j)
+      for (i = 1; i < blocksize; ++i)
+         vertex_count[j][i] += vertex_count[j][i - 1];
+
+   Stop(&timer[XFORM]);
+   Start(&timer[SORT]);
+
+   for (digits = 0; digits < 32; digits += granularity) {
+      // fill-in the sorted array of edges
+      row = digits/granularity;
+      for (i = edges - 1; i >= 0; --i) {
+         key = graph->sorted_edges_array[i].src;
+         key = (key >> digits) & bitmask;
+         pos = --vertex_count[row][key];
+         sorted_edges_array[pos] = graph->sorted_edges_array[i];
+      }
+      // Swap the dirty and clean arrays
+      temp = graph->sorted_edges_array;
+      graph->sorted_edges_array = sorted_edges_array;
+      sorted_edges_array = temp;
+   }
+   Stop(&timer[SORT]);
+   free(sorted_edges_array);
+
+   return graph;
+
+   /*int i, key, pos, digits;
    int granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
 
    const int edges = graph->num_edges;
@@ -199,7 +302,7 @@ struct Graph *radixSortEdgesBySourceOpenMP(struct Graph *graph, struct Timer *ti
    //free the extra arrays
 
    free(sorted_edges_array);
-   return graph;
+   return graph;*/
 }
 
 struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer) {
@@ -275,6 +378,7 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
    }
 
    struct Graph *radixSortEdgesBySourceHybrid(struct Graph *graph, struct Timer *timer) {
+
       int i, key, pos, digits=0;
       const int granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
       const int iters = 32/granularity;
@@ -285,6 +389,12 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
       const int edges = graph->num_edges;
       const int blocksize = bitmask + 1;
       const int all_blocks = blocksize + (thread_per_bitbucket*blocksize);
+      Start(&timer[INIT]);
+      Start(&timer[COUNT]);
+      Start(&timer[CRUSH]);
+      Start(&timer[XFORM]);
+      Start((&timer[MPI_MSG]));
+      Start(&timer[SORT]);
 
       int my_rank=0;
       MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
@@ -297,7 +407,7 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
 
       int vertex_count_tmp[iters][all_blocks];
       int vertex_count[iters][blocksize];
-      Start(&timer[INIT]);
+
 
       for (int k = 0; k < iters; ++k) {
             for (int q = 0; q < all_blocks; ++q)
@@ -312,7 +422,7 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
       int offset=0;
       int end=0, row=0;
 
-      Start(&timer[COUNT]);
+
       for (digits = my_rank * ((iters/2) * granularity); digits <= (my_rank * (iters/2) * granularity) + granularity; digits = digits + granularity) {
 #pragma omp parallel default(none) shared(vertex_count_tmp, graph, digits, my_rank) private(i, thr, thr_offset, offset, end, key, row)
          {
@@ -336,7 +446,7 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
       int joffset=0;
       Stop(&timer[COUNT]);
 
-      Start(&timer[CRUSH]);
+
 
       for(int f = 0; f<iters; ++f){
          for (int j = 0; j < thread_per_bitbucket; ++j){
@@ -350,14 +460,14 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
          }
       }
       Stop(&timer[CRUSH]);
-      Start(&timer[XFORM]);
+
 
       for(int j=0;j < iters;++j)
          for (i = 1; i < blocksize; ++i)
             vertex_count[j][i] += vertex_count[j][i - 1];
 
          Stop(&timer[XFORM]);
-      Start((&timer[MPI_MSG]));
+
 
       if( my_rank == 0) {
          if(iters == 4) {
@@ -386,7 +496,7 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
       }
       MPI_Barrier(MPI_COMM_WORLD);
       Stop(&timer[MPI_MSG]);
-      Start(&timer[SORT]);
+
 
       for (digits = 0; digits < 32; digits += granularity) {
          // fill-in the sorted array of edges
