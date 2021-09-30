@@ -1,0 +1,36 @@
+/home/smdupor
+c7
+Wed Sep 29 22:55:53 EDT 2021
+Running 13GB NOPIPE+parallelfor large dataset on 16 CPU cores
+initializing graphs...
+initializing graphs...
+loading array...
+loading array...
+Copying graphs...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 54.904369
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 55.069691
+-----------------------------------------------------
+Slave process, exit.InitCountCrushXformMPImsgSort: 19911.000000, 23459.000000, 23459.000000, 23459.000000, 23459.000000, 24372.000000 
+Total Sim Time:  :	 1619.195157
+-----------------------------------------------------
+[c7:mpi_rank_0][error_sighandler] Caught error: Segmentation fault (signal 11)
+
+===================================================================================
+=   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
+=   PID 116124 RUNNING AT c7
+=   EXIT CODE: 11
+=   CLEANING UP REMAINING PROCESSES
+=   YOU CAN IGNORE THE BELOW CLEANUP MESSAGES
+===================================================================================
+YOUR APPLICATION TERMINATED WITH THE EXIT STRING: Segmentation fault (signal 11)
+This typically refers to a problem with your application.
+Please see the FAQ page for debugging suggestions
+Wed Sep 29 23:23:11 EDT 2021

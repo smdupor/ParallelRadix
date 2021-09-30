@@ -1,0 +1,34 @@
+/home/smdupor
+c45
+Wed Sep 29 21:51:36 EDT 2021
+Running 24b8 large dataset on 16 CPU cores
+initializing graphs...
+initializing graphs...
+loading array...
+loading array...
+Copying graphs...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 16777215 Vertices: 1241513877
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 16777215 Vertices: 1241513877
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 18.725171
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 18.733883
+-----------------------------------------------------
+LSB
+4SB
+3SB
+2SB
+Slave process, exit.InitCountCrushXformMPImsgSort: 777.000000, 976.000000, 976.000000, 976.000000, 980.000000, 1024.000000 
+Total Sim Time:  :	 81.350621
+-----------------------------------------------------
+Radix Sorting Hybrid (Seconds) :	 5.539583
+-----------------------------------------------------
+InitCountCrushXformMPImsgSort: 781.000000, 980.000000, 980.000000, 980.000000, 980.000000, 5540.000000 
+VALIDATION PASS
+Total Sim Time:  :	 85.943790
+-----------------------------------------------------
+Wed Sep 29 21:53:03 EDT 2021

@@ -1,0 +1,27 @@
+/home/smdupor
+c26
+Mon Sep 27 23:43:29 EDT 2021
+Running 13GB large dataset on 16 CPU cores
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting.
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 27.580484
+-----------------------------------------------------
+[cli_0]: aborting job:
+Fatal error in MPI_Recv:
+Invalid rank, error stack:
+MPI_Recv(187): MPI_Recv(buf=0x7fff72992400, count=256, MPI_INT, src=1, tag=0, MPI_COMM_WORLD, status=0x1) failed
+MPI_Recv(107): Invalid rank has value 1 but must be nonnegative and less than 1
+
+
+===================================================================================
+=   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
+=   PID 28092 RUNNING AT c26
+=   EXIT CODE: 1
+=   CLEANING UP REMAINING PROCESSES
+=   YOU CAN IGNORE THE BELOW CLEANUP MESSAGES
+===================================================================================
+Mon Sep 27 23:56:00 EDT 2021

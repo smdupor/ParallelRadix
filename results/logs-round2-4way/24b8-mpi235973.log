@@ -1,0 +1,55 @@
+/home/smdupor
+c8
+Tue Sep 28 09:52:55 EDT 2021
+Running 24b8 large dataset on 16 CPU cores
+initializing graphs...
+initializing graphs...
+initializing graphs...
+initializing graphs...
+loading array...
+loading array...
+loading array...
+loading array...
+Copying graphs...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 16777215 Vertices: 1241513877
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 16777215 Vertices: 1241513877
+-----------------------------------------------------
+Copying graphs...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 16777215 Vertices: 1241513877
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 16777215 Vertices: 1241513877
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 4.063961
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 4.077529
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 4.016852
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 4.024361
+-----------------------------------------------------
+Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 38.000000, 38.000000, 61.000000, 61.000000, 61.000000 
+Slave process, exit, Radix MPI.Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 38.000000, 38.000000, 61.000000, 61.000000, 68.000000 
+Radix Sorting MPI (Seconds) :	 0.204024
+-----------------------------------------------------
+InitCountCrushXformMPImsgSort: 38.000000, 38.000000, 62.000000, 62.000000, 204.000000, 21420048000.000000 
+
+InitCountCrushXformMPImsgSort: 38.000000, 38.000000, 61.000000, 61.000000, 214.000000 
+Total Sim Time:  :	 47.338420
+-----------------------------------------------------
+Total Sim Time:  :	 47.333691
+-----------------------------------------------------
+Total Sim Time:  :	 47.347395
+-----------------------------------------------------
+Interal Graph Failures Qty: 16777214VALIDATION FAIL
+Total Sim Time:  :	 47.371725
+-----------------------------------------------------
+Tue Sep 28 09:53:43 EDT 2021

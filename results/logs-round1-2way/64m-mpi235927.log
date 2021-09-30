@@ -1,0 +1,32 @@
+/home/smdupor
+c19.localdomain
+Tue Sep 28 00:30:27 EDT 2021
+Running 64m large dataset on 16 CPU cores
+initializing graphs...
+initializing graphs...
+loading array...
+loading array...
+Copying graphs...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5021410 Vertices: 2394385
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 5021410 Vertices: 2394385
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.054891
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.054312
+-----------------------------------------------------
+Radix Sorting MPI (Seconds) :	 0.129208
+-----------------------------------------------------
+InitCountCrushXformMPImsgSort: 16.000000, 42.000000, 42.000000, 42.000000, 42.000000, 128.000000 
+Radix Sorting MPI (Seconds) :	 0.131250
+-----------------------------------------------------
+InitCountCrushXformMPImsgSort: 15.000000, 42.000000, 42.000000, 42.000000, 44.000000, 131.000000 
+Total Sim Time:  :	 12.938746
+-----------------------------------------------------
+VALIDATION PASS
+Total Sim Time:  :	 12.951188
+-----------------------------------------------------
+Tue Sep 28 00:30:41 EDT 2021

@@ -1,0 +1,55 @@
+/home/smdupor
+c8
+Tue Sep 28 09:51:18 EDT 2021
+Running 479m large dataset on 16 CPU cores
+initializing graphs...
+initializing graphs...
+initializing graphs...
+initializing graphs...
+loading array...
+loading array...
+loading array...
+loading array...
+Copying graphs...
+Copying graphs...
+Copying graphs...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 34681189 Vertices: 4036538
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 34681189 Vertices: 4036538
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 34681189 Vertices: 4036538
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 34681189 Vertices: 4036538
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.309599
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.310482
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.311084
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.311452
+-----------------------------------------------------
+Radix Sorting MPI (Seconds) :	 0.209669
+-----------------------------------------------------
+InitCountCrushXformMPImsgSort: 117.000000, 117.000000, 196.000000, 196.000000, 210.000000, 13080592000.000000 
+Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 117.000000, 117.000000, 208.000000, 208.000000, 208.000000 
+Slave process, exit, Radix MPI.Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 116.000000, 116.000000, 207.000000, 207.000000, 212.000000 
+
+InitCountCrushXformMPImsgSort: 115.000000, 115.000000, 206.000000, 206.000000, 213.000000 
+Total Sim Time:  :	 65.332768
+-----------------------------------------------------
+Total Sim Time:  :	 65.334965
+-----------------------------------------------------
+Total Sim Time:  :	 65.333261
+-----------------------------------------------------
+VALIDATION PASS
+Total Sim Time:  :	 65.392379
+-----------------------------------------------------
+Tue Sep 28 09:52:25 EDT 2021

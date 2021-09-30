@@ -1,0 +1,55 @@
+/home/smdupor
+c0
+Tue Sep 28 09:51:45 EDT 2021
+Running 13GB large dataset on 16 CPU cores
+initializing graphs...
+initializing graphs...
+initializing graphs...
+initializing graphs...
+loading array...
+loading array...
+loading array...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+Copying graphs...
+Copying graphs...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 53.416743
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 135.779905
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 160.969598
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 161.054742
+-----------------------------------------------------
+Slave process, exit, Radix MPI.Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 4469.000000, 4469.000000, 6022.000000, 6022.000000, 31420.000000 
+
+InitCountCrushXformMPImsgSort: 4492.000000, 4492.000000, 5996.000000, 5996.000000, 5996.000000 
+Radix Sorting MPI (Seconds) :	 159.091867
+-----------------------------------------------------
+Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 4478.000000, 4478.000000, 6371.000000, 6371.000000, 6371.000000 
+InitCountCrushXformMPImsgSort: 2051.000000, 2051.000000, 3529.000000, 3529.000000, 159091.000000, 34953232000.000000 
+Total Sim Time:  :	 1781.956813
+-----------------------------------------------------
+Total Sim Time:  :	 1781.992341
+-----------------------------------------------------
+Total Sim Time:  :	 1782.238112
+-----------------------------------------------------
+Interal Graph Failures Qty: 925985347VALIDATION FAIL
+Total Sim Time:  :	 1783.030624
+-----------------------------------------------------
+Tue Sep 28 10:21:31 EDT 2021

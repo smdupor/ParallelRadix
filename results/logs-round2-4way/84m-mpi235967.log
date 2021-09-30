@@ -1,0 +1,55 @@
+/home/smdupor
+c0
+Tue Sep 28 09:51:15 EDT 2021
+Running 84m large dataset on 16 CPU cores
+initializing graphs...
+initializing graphs...
+initializing graphs...
+initializing graphs...
+loading array...
+loading array...
+loading array...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.049408
+-----------------------------------------------------
+Copying graphs...
+Copying graphs...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.042980
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.042750
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.046718
+-----------------------------------------------------
+Slave process, exit, Radix MPI.Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 13.000000, 13.000000, 24.000000, 24.000000, 28.000000 
+Radix Sorting MPI (Seconds) :	 0.114315
+-----------------------------------------------------
+InitCountCrushXformMPImsgSort: 12.000000, 12.000000, 22.000000, 22.000000, 114.000000, 36698128000.000000 
+Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 13.000000, 13.000000, 25.000000, 25.000000, 29.000000 
+
+InitCountCrushXformMPImsgSort: 13.000000, 13.000000, 25.000000, 25.000000, 25.000000 
+Total Sim Time:  :	 10.124160
+-----------------------------------------------------
+Total Sim Time:  :	 10.116710
+-----------------------------------------------------
+Total Sim Time:  :	 10.108507
+-----------------------------------------------------
+Interal Graph Failures Qty: 5533062VALIDATION FAIL
+Total Sim Time:  :	 10.119003
+-----------------------------------------------------
+Tue Sep 28 09:51:26 EDT 2021

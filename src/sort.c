@@ -4,6 +4,7 @@
 #include <omp.h>
 #include <string.h>
 #include <mpi.h>
+#include <unistd.h>
 
 #include "sort.h"
 #include "graph.h"
@@ -417,11 +418,39 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
          my_rank = 1;
 
       struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
+      struct Edge *sorted_edges_array2 = newEdgeArray(graph->num_edges);
+      struct Edge *sorted_edges_array3 = newEdgeArray(graph->num_edges);
+      struct Edge *sorted_edges_array4 = newEdgeArray(graph->num_edges);
+
       struct Edge *temp;
 
       int vertex_count_tmp[iters][all_blocks];
       int vertex_count[iters][blocksize];
 
+      int thr=0, thr_offset=0;
+      int offset=0;
+      int end=0, row=0;
+
+#pragma omp parallel default(none) private(thr) shared(sorted_edges_array, sorted_edges_array2, sorted_edges_array3, sorted_edges_array4, graph) num_threads(4)
+      {
+         thr = omp_get_thread_num();
+         if (thr == 0)
+            for (int i = 0; i < graph->num_edges; ++i) {
+               sorted_edges_array[i].src = -1;
+            }
+         if(thr == 1)
+            for(int i=0;i<graph->num_edges;++i){
+               sorted_edges_array2[i].src=-1;
+            }
+         if(thr == 2)
+            for(int i=0;i<graph->num_edges;++i){
+               sorted_edges_array3[i].src=-1;
+            }
+         if(thr == 3)
+            for(int i=0;i<graph->num_edges;++i){
+               sorted_edges_array4[i].src=-1;
+            }
+      }
 
       for (int k = 0; k < iters; ++k) {
             for (int q = 0; q < all_blocks; ++q)
@@ -432,9 +461,9 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
 
       Stop(&timer[INIT]);
 
-      int thr=0, thr_offset=0;
-      int offset=0;
-      int end=0, row=0;
+       thr=0, thr_offset=0;
+       offset=0;
+       end=0, row=0;
 
 
       for (digits = my_rank * ((iters/2) * granularity); digits <= (my_rank * (iters/2) * granularity) + granularity; digits = digits + granularity) {
@@ -511,24 +540,85 @@ struct Graph *radixSortEdgesBySourceMPI(struct Graph *graph, struct Timer *timer
       MPI_Barrier(MPI_COMM_WORLD);
       Stop(&timer[MPI_MSG]);
 
-
-      for (digits = 0; digits < 32; digits += granularity) {
+      if(my_rank >0) {
+         free(sorted_edges_array);
+         free(sorted_edges_array2);
+         free(sorted_edges_array3);
+         free(sorted_edges_array4);
+         Stop(&timer[SORT]);
+         return graph;
+      }
+      for (digits = 0; digits < 32; digits += granularity) {/*
+#pragma omp parallel shared(graph, vertex_count, sorted_edges_array, sorted_edges_array4, sorted_edges_array3, sorted_edges_array2) private(i, thr, digits, row, pos, key) default (none) num_threads(4)
+      {
+       thr=omp_get_thread_num();
+       digits = thr*granularity;
          // fill-in the sorted array of edges
-         row = digits/granularity;
-         for (i = edges - 1; i >= 0; --i) {
+         row = thr;
+
+         if(thr==0) {
+            printf("LSB\n");*/
+      row = digits/granularity;
+#pragma omp parallel for default(none) shared(graph, vertex_count, sorted_edges_array, row, digits) private (key, pos) schedule(static, 1)
+      for (i = edges - 1; i >= 0; --i) {
             key = graph->sorted_edges_array[i].src;
             key = (key >> digits) & bitmask;
+#pragma omp critical
             pos = --vertex_count[row][key];
             sorted_edges_array[pos] = graph->sorted_edges_array[i];
-         }
+         }/*}
+
+         if(thr==1) {
+            printf("2SB\n");
+            for (i = edges - 1; i >= 0; --i) {
+               while(sorted_edges_array[i].src == -1)
+               {
+                  nanosleep(10);
+               }
+               key = sorted_edges_array[i].src;
+               key = (key >> digits) & bitmask;
+               pos = --vertex_count[thr][key];
+               sorted_edges_array2[pos] = sorted_edges_array[i];
+            }}
+
+         if(thr==2) {
+            printf("3SB\n");
+            for (i = edges - 1; i >= 0; --i) {
+               while(sorted_edges_array2[i].src == -1)
+               {
+                  nanosleep(10);
+               }
+               key = sorted_edges_array2[i].src;
+               key = (key >> digits) & bitmask;
+               pos = --vertex_count[thr][key];
+               sorted_edges_array3[pos] = sorted_edges_array2[i];
+            }}
+
+         if(thr==3) {
+            printf("4SB\n");
+            for (i = edges - 1; i >= 0; --i) {
+               while(sorted_edges_array3[i].src == -1)
+               {
+                  nanosleep(10);
+               }
+               key = sorted_edges_array3[i].src;
+               key = (key >> digits) & bitmask;
+               pos = --vertex_count[thr][key];
+               sorted_edges_array4[pos] = sorted_edges_array3[i];
+            }}
+*/
          // Swap the dirty and clean arrays
          temp = graph->sorted_edges_array;
          graph->sorted_edges_array = sorted_edges_array;
          sorted_edges_array = temp;
       }
-      Stop(&timer[SORT]);
-      free(sorted_edges_array);
+      //free(graph->sorted_edges_array);
+    //  graph->sorted_edges_array = sorted_edges_array4;
 
+      free(sorted_edges_array);
+      free(sorted_edges_array2);
+      free(sorted_edges_array3);
+      Stop(&timer[SORT]);
       return graph;
 
    }

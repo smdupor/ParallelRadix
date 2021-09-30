@@ -1,0 +1,55 @@
+/home/smdupor
+c8
+Tue Sep 28 09:52:45 EDT 2021
+Running 20b8 large dataset on 16 CPU cores
+initializing graphs...
+initializing graphs...
+initializing graphs...
+initializing graphs...
+loading array...
+loading array...
+loading array...
+loading array...
+Copying graphs...
+Copying graphs...
+Copying graphs...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 1048575 Vertices: 16777215
+-----------------------------------------------------
+<1><1><2><2>
+Done. Sorting. Edges: 1048575 Vertices: 16777215
+-----------------------------------------------------
+<2><2>
+Done. Sorting. Edges: 1048575 Vertices: 16777215
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 1048575 Vertices: 16777215
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.111861
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.112437
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.112406
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.117804
+-----------------------------------------------------
+Slave process, exit, Radix MPI.Radix Sorting MPI (Seconds) :	 0.004877
+-----------------------------------------------------
+InitCountCrushXformMPImsgSort: 2.000000, 2.000000, 4.000000, 4.000000, 4.000000, 24467472000.000000 
+Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 3.000000, 3.000000, 4.000000, 4.000000, 13.000000 
+Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 2.000000, 2.000000, 5.000000, 5.000000, 13.000000 
+
+InitCountCrushXformMPImsgSort: 3.000000, 3.000000, 4.000000, 4.000000, 13.000000 
+Total Sim Time:  :	 2.114978
+-----------------------------------------------------
+Total Sim Time:  :	 2.120088
+-----------------------------------------------------
+Total Sim Time:  :	 2.116038
+-----------------------------------------------------
+Interal Graph Failures Qty: 1048574VALIDATION FAIL
+Total Sim Time:  :	 2.134306
+-----------------------------------------------------
+Tue Sep 28 09:52:48 EDT 2021
