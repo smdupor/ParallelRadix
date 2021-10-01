@@ -44,61 +44,189 @@ struct Graph *serial_count_sort(struct Graph *graph, struct Timer *timer) {
 }
 
 struct Graph *countSortEdgesBySource(struct Graph *graph, struct Timer *timer) {
-   int i;
-   int key;
-   int pos;
+
+   Start(&timer[INIT]);
+   Start(&timer[COUNT]);
+   Start(&timer[CRUSH]);
+   Start(&timer[XFORM]);
+   Start(&timer[SORT]);
+   Start(&timer[MPI_MSG]);
+   Stop(&timer[MPI_MSG]);
+
+   int i, key, pos;
    struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
    // auxiliary arrays, allocated at the start up of the program
    int *vertex_count = (int *) malloc(graph->num_vertices * sizeof(int)); // needed for Counting Sort
-
-   /**************************** HOLDING ZONE **************************/
-   // printf("Thread num: %i of %i \n", omp_get_thread_num(), omp_get_num_threads());
-
-   // memset(vertex_count, 0, graph->num_vertices*sizeof(int));
-
-
-   /**************************** HOLDING ZONE **************************/
    const int vertices = graph->num_vertices;
    const int edges = graph->num_edges;
-   /*************** remove edges, vertices**/
-#pragma omp parallel default(none) shared(graph, vertex_count, sorted_edges_array) private (key, i, pos)
-   {
-#pragma omp for schedule(static, 8)
-      for (i = 0; i < vertices; ++i) {
-         vertex_count[i] = 0;
-      }
 
-      // count occurrence of key: id of a source vertex
-#pragma omp for schedule(static, 8)
-      for (i = 0; i < edges; ++i) {
-         key = graph->sorted_edges_array[i].src;
-#pragma omp atomic
-         vertex_count[key]++;
-      }
-#pragma omp single
-      // transform to cumulative sum
-      for (i = 1; i < vertices; ++i) {
-         vertex_count[i] += vertex_count[i - 1];
-      }
-
-      // fill-in the sorted array of edges
-#pragma omp single
-      for (i = edges - 1; i >= 0; --i) {
-
-         pos = --vertex_count[graph->sorted_edges_array[i].src];
-
-         //  #pragma omp critical
-         sorted_edges_array[pos] = graph->sorted_edges_array[i];
-         //  #pragma omp atomic
-         // vertex_count[key]--;
-      }
+#pragma omp parallel for default(none) shared(vertex_count) schedule(static, 256)
+   for (i = 0; i < vertices; ++i) {
+      vertex_count[i] = 0;
    }
+   Stop(&timer[INIT]);
+   // count occurrence of key: id of a source vertex
+#pragma omp parallel for default(none) shared(vertex_count, graph) private(key, i) schedule(static, 256)
+   for (i = 0; i < edges; ++i) {
+      key = graph->sorted_edges_array[i].src;
+#pragma omp atomic
+      vertex_count[key]++;
+   }
+   Stop(&timer[COUNT]);
+   Stop(&timer[CRUSH]);
+
+   // transform to cumulative sum
+
+   for (i = 1; i < graph->num_vertices; ++i) {
+      vertex_count[i] += vertex_count[i - 1];
+   }
+   Stop(&timer[XFORM]);
+   // fill-in the sorted array of edges
+   for (i = graph->num_edges - 1; i >= 0; --i) {
+      key = graph->sorted_edges_array[i].src;
+      pos = vertex_count[key] - 1;
+      sorted_edges_array[pos] = graph->sorted_edges_array[i];
+      vertex_count[key]--;
+   }
+   Stop(&timer[SORT]);
+
+   free(vertex_count);
+   free(graph->sorted_edges_array);
+   graph->sorted_edges_array = sorted_edges_array;
+   return graph;
+
+
+
+
+
+
+   /*
+   *int i, key, pos;
+   Start(&timer[INIT]);
+   Start(&timer[COUNT]);
+   Start(&timer[CRUSH]);
+   Start(&timer[XFORM]);
+   Start(&timer[SORT]);
+   Start(&timer[MPI_MSG]);
+   Stop(&timer[MPI_MSG]);
+
+   const int thread_per_bitbucket = 4;
+   omp_set_nested(1);
+   omp_set_num_threads(thread_per_bitbucket);
+   printf("ParalleCountsort Num THR: %i on OMP\n", thread_per_bitbucket);
+
+   const int edges = graph->num_edges;
+   const int blocksize = graph->num_vertices;
+   const int all_blocks = blocksize * thread_per_bitbucket;
+
+   printf("ALLBLOCKS %i bs %i edges %i\n", all_blocks, blocksize, edges);
+
+   struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
+   struct Edge *temp;
+
+
+   //int vertex_count_tmp[all_blocks];
+   int * vertex_count_tmp = (int *) malloc((int) all_blocks*sizeof(int));
+
+
+   int * vertex_count = (int *) malloc((int) blocksize*sizeof(int ));
+
+   printf("Decl DONE.\n");
+  // sleep(1);
+#pragma omp parallel default(none) shared(vertex_count, vertex_count_tmp) num_threads(2)
+   {
+      if(omp_get_thread_num() == 0)
+          for (int q = 0; q < all_blocks; ++q)
+            vertex_count_tmp[q] = 0;
+      if(omp_get_thread_num()==1)
+        for (int q = 0; q < blocksize; ++q)
+            vertex_count[q] = 0;
+   }
+printf("INIT DONE.\n");
+   Stop(&timer[INIT]);
+
+   int thr=0, thr_offset=0;
+   int offset=0;
+   int end=0;
+
+
+#pragma omp parallel default(none) shared(vertex_count_tmp, graph) private(i, thr, thr_offset, offset, end, key) num_threads(thread_per_bitbucket)
+      {
+         thr = omp_get_thread_num();
+         offset = edges/(omp_get_num_threads());
+         end = offset + edges/(omp_get_num_threads());
+         thr_offset = blocksize*thr;
+     //    printf("thread %i thr_off %i start %i end %i \n ", thr, thr_offset, offset, end);
+
+
+         if (((edges*omp_get_num_threads()) - end) < edges && ((edges*omp_get_num_threads()) - end) > 0)
+            end = edges*omp_get_num_threads();
+        // printf("thread %i thr_off %i start %i end %i \n ", thr, thr_offset, offset, end);
+        // sleep(3);
+         // count occurrence of key: id of a source vertex
+       //  printf("Midsleep %i\n", thr);
+         //if(thr<3)
+        //    sleep(2);
+       //  printf("Endsleep %i\n", thr);
+         for (i = offset; i < end; ++i) {
+        //      printf("i at kill was: %i of %i of %i on %i \n", i, end, edges, thr);
+
+            key = graph->sorted_edges_array[i].src;
+            vertex_count_tmp[key + thr_offset]++;
+
+         }
+
+      }
+      printf("COUNTCRAP DONE\n");
+   Stop(&timer[COUNT]);
+   const int stop = blocksize;
+   int joffset=0;
+      for (int j = 0; j < thread_per_bitbucket; ++j){
+         joffset = j*stop;
+         for (i = 0; i < stop; ++i) {
+            if(j==0)
+               vertex_count[i] = vertex_count_tmp[i];
+            else
+               vertex_count[i] += vertex_count_tmp[i + joffset];
+         }
+      }
+   printf("CRUSH IS DONE\n");
+   Stop(&timer[CRUSH]);
+free(vertex_count_tmp);
+
+
+      for (i = 1; i < blocksize; ++i)
+         vertex_count[i] += vertex_count[i - 1];
+
+   Stop(&timer[XFORM]);
+   printf("XFORM IS DONE\n");
+
+      for (i = edges - 1; i >= 0; --i) {
+         key = graph->sorted_edges_array[i].src;
+         pos = --vertex_count[key];
+         sorted_edges_array[pos] = graph->sorted_edges_array[i];
+      }
+      // Swap the dirty and clean arrays
+   //   temp = graph->sorted_edges_array;
+   printf("SORT1 IS DONE\n");
 
    free(vertex_count);
    free(graph->sorted_edges_array);
    graph->sorted_edges_array = sorted_edges_array;
 
-   return graph;
+
+   //free(graph->sorted_edges_array);
+   printf("SORT 2IS DONE\n");
+      graph->sorted_edges_array = sorted_edges_array;
+   printf("SORT3 IS DONE\n");
+
+   Stop(&timer[SORT]);
+   printf("SORT 4IS DONE\n");
+  // free(vertex_count);
+   printf("SORT 5IS DONE\n");
+
+
+   return graph;*/
 }
 
 struct Graph *radix_serial(struct Graph *graph, struct Timer *timer) {

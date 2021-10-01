@@ -136,13 +136,6 @@ int main(int argc, char **argv) {
       //char prefix[80] = "../";
       //char prefix[80] =  "/mnt/beegfs/smdupor/";
 
-      // Serial
-      //  Start(timer);
-      //   graph = countSortEdgesBySource(graph); // you need to parallelize this function
-      //   Stop(timer);
-      //file_dump(graph, strcat(prefix, "out-cspar"));
-      // printMessageWithtime("Parallel Count Sort (Seconds)",Seconds(timer));
-
       Start(timer);
       graph_ser = serial_count_sort(graph_ser, timers); // you need to parallelize this function
       Stop(timer);
@@ -150,6 +143,21 @@ int main(int argc, char **argv) {
       //file_dump(graph_ser, strcat(prefix,"out-csser"));
       //  validation_run(graph_ser, graph, 1);
       //  printf("validation complete\n");
+
+   graph_omp = countSortEdgesBySource(graph_omp, timers); // you need to parallelize this function
+   Stop(timer);
+   printf("Countsort Sorting OMP on thrQry %i (Seconds): %f \n",  numThreads, Seconds(timer));
+   printf("Init: %f Count: %f Crush: %f Xform: %f MPImsg: %f Sort: %f\n", Millisecs(&timers[INIT]),
+          Millisecs(&timers[COUNT]),
+          Millisecs(&timers[CRUSH]), Millisecs(&timers[XFORM]), Millisecs(&timers[MPI_MSG]),
+          Millisecs(&timers[SORT]));
+   //file_dump(graph_omp, strcat(prefix,"out-omp"));
+   if (validation_run(graph_ser, graph_omp, 2) == 0)
+      printf("validation PASS\n");
+   else
+      printf("validation FAIL\n");
+
+   freeGraph(graph_omp);
 
       // OMP Radix
       /*Start(timer);
@@ -166,7 +174,7 @@ int main(int argc, char **argv) {
       freeGraph(graph_omp);*/
 
       // Serial Radix
-   Start(timer);
+/*   Start(timer);
    graph_omp = radix_serial(graph_omp, timers); // you need to parallelize this function
    Stop(timer);
    printMessageWithtime("Radix Sorting OMP (Seconds)", Seconds(timer));
@@ -181,7 +189,7 @@ int main(int argc, char **argv) {
       printf("validation FAIL\n");
 
    freeGraph(graph_omp);
-
+*/
 
       //  freeGraph(graph);
 /*
@@ -235,7 +243,7 @@ int main(int argc, char **argv) {
      // }*/
       //freeGraph(graph_mpi);
       if (graph_ser)
-         freeGraph(graph_ser);
+        freeGraph(graph_ser);
       //if (graph_hyb)
       //   freeGraph(graph_hyb);
      // if (graph)
