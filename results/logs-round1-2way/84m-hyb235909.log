@@ -1,0 +1,32 @@
+/home/smdupor
+c1
+Tue Sep 28 00:05:28 EDT 2021
+Running 84m large dataset on 16 CPU cores
+initializing graphs...
+initializing graphs...
+loading array...
+loading array...
+Copying graphs...
+Copying graphs...
+<1><2><2>
+Done. Sorting.
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting.
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.054098
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.053243
+-----------------------------------------------------
+Radix Sorting Hybrid (Seconds) :	 0.446980
+-----------------------------------------------------
+Radix Sorting Hybrid (Seconds) :	 0.446995
+-----------------------------------------------------
+InitCountCrushXformMPImsgSort: 17.000000, 189.000000, 189.000000, 189.000000, 211.000000, 446.000000 
+InitCountCrushXformMPImsgSort: 18.000000, 182.000000, 182.000000, 182.000000, 211.000000, 446.000000 
+VALIDATION PASS
+Total Sim Time:  :	 15.188793
+-----------------------------------------------------
+Total Sim Time:  :	 15.193778
+-----------------------------------------------------
+Tue Sep 28 00:05:44 EDT 2021

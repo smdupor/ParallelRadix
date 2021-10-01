@@ -1,0 +1,70 @@
+/home/smdupor
+c6
+Thu Sep 30 12:43:07 EDT 2021
+Running dataset30b8B large dataset on 16 CPU cores
+RES _______ 4 __________ THR _________ 8,16,32 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 1073741822 Vertices: 184549375
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 86.037678
+-----------------------------------------------------
+OMP Num THR: 8 on OMP RESOLUTION 4
+Radix Sorting OMP (Seconds) :	 36.633498
+-----------------------------------------------------
+Init: 2288.000000 Count: 14906.000000 Crush: 15026.000000 Xform: 15026.000000 MPImsg: 0.000000 Sort: 36618.000000
+validation PASS
+Total Sim Time:  :	 1034.814412
+-----------------------------------------------------
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 1073741822 Vertices: 184549375
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 86.027978
+-----------------------------------------------------
+OMP Num THR: 16 on OMP RESOLUTION 4
+Radix Sorting OMP (Seconds) :	 36.740205
+-----------------------------------------------------
+Init: 2289.000000 Count: 15022.000000 Crush: 15152.000000 Xform: 15152.000000 MPImsg: 0.000000 Sort: 36726.000000
+validation PASS
+Total Sim Time:  :	 1053.372042
+-----------------------------------------------------
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 1073741822 Vertices: 184549375
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 86.057122
+-----------------------------------------------------
+OMP Num THR: 32 on OMP RESOLUTION 4
+Radix Sorting OMP (Seconds) :	 36.449618
+-----------------------------------------------------
+Init: 2287.000000 Count: 14827.000000 Crush: 14827.000000 Xform: 14827.000000 MPImsg: 0.000000 Sort: 36435.000000
+validation PASS
+Total Sim Time:  :	 1024.515499
+-----------------------------------------------------
+RES _______ 8 __________ THR _________ 4,8, 16, 32 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 1073741822 Vertices: 184549375
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 85.428337
+-----------------------------------------------------
+OMP Num THR: 4 on OMP RESOLUTION 8
+Radix Sorting OMP (Seconds) :	 35.589183
+-----------------------------------------------------
+Init: 2285.000000 Count: 8276.000000 Crush: 8312.000000 Xform: 8312.000000 MPImsg: 0.000000 Sort: 35575.000000
+validation PASS
+Total Sim Time:  :	 1035.735844
+-----------------------------------------------------
+initializing graphs...
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** STEP 236487.4 ON c6 CANCELLED AT 2021-09-30T13:58:17 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 236487 ON c6 CANCELLED AT 2021-09-30T13:58:17 DUE TO TIME LIMIT ***

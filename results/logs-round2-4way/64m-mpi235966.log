@@ -1,0 +1,55 @@
+/home/smdupor
+c0
+Tue Sep 28 09:50:00 EDT 2021
+Running 64m large dataset on 16 CPU cores
+initializing graphs...
+initializing graphs...
+initializing graphs...
+initializing graphs...
+loading array...
+loading array...
+loading array...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5021410 Vertices: 2394385
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.049882
+-----------------------------------------------------
+Copying graphs...
+Copying graphs...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5021410 Vertices: 2394385
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 5021410 Vertices: 2394385
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 5021410 Vertices: 2394385
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.042696
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.042332
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.048748
+-----------------------------------------------------
+Radix Sorting MPI (Seconds) :	 0.167310
+-----------------------------------------------------
+InitCountCrushXformMPImsgSort: 12.000000, 12.000000, 24.000000, 24.000000, 167.000000, 28334096000.000000 
+Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 12.000000, 12.000000, 25.000000, 25.000000, 25.000000 
+Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 11.000000, 11.000000, 22.000000, 22.000000, 30.000000 
+Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 11.000000, 11.000000, 22.000000, 22.000000, 31.000000 
+Total Sim Time:  :	 7.791379
+-----------------------------------------------------
+Total Sim Time:  :	 7.771607
+-----------------------------------------------------
+Total Sim Time:  :	 7.775692
+-----------------------------------------------------
+VALIDATION PASS
+Total Sim Time:  :	 7.779426
+-----------------------------------------------------
+Tue Sep 28 09:50:09 EDT 2021

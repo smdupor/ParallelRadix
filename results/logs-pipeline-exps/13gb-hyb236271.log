@@ -1,0 +1,30 @@
+/home/smdupor
+c17
+Wed Sep 29 22:44:25 EDT 2021
+Running 13GB NOPIPE large dataset on 16 CPU cores
+initializing graphs...
+initializing graphs...
+loading array...
+loading array...
+Copying graphs...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 28.093967
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 28.899352
+-----------------------------------------------------
+Slave process, exit.InitCountCrushXformMPImsgSort: 19833.000000, 23348.000000, 23348.000000, 23348.000000, 23348.000000, 24261.000000 
+Total Sim Time:  :	 1603.483365
+-----------------------------------------------------
+Radix Sorting Hybrid (Seconds) :	 40.645835
+-----------------------------------------------------
+InitCountCrushXformMPImsgSort: 19820.000000, 23115.000000, 23115.000000, 23115.000000, 23348.000000, 40645.000000 
+VALIDATION PASS
+Total Sim Time:  :	 1621.206468
+-----------------------------------------------------
+Wed Sep 29 23:11:27 EDT 2021

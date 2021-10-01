@@ -152,7 +152,7 @@ int main(int argc, char **argv) {
       //  printf("validation complete\n");
 
       // OMP Radix
-      Start(timer);
+      /*Start(timer);
       graph_omp = radixSortEdgesBySourceOpenMP(graph_omp, timers); // you need to parallelize this function
       Stop(timer);
       printMessageWithtime("Radix Sorting OMP (Seconds)", Seconds(timer));
@@ -161,9 +161,26 @@ int main(int argc, char **argv) {
              Millisecs(&timers[CRUSH]), Millisecs(&timers[XFORM]), Millisecs(&timers[MPI_MSG]),
              Millisecs(&timers[SORT]));
       //file_dump(graph_omp, strcat(prefix,"out-omp"));
-      if (validation_run(graph_ser, graph_omp, 1) == 0);
+      if (validation_run(graph_ser, graph_omp, 1) == 0)
          printf("validation PASS\n");
-      freeGraph(graph_omp);
+      freeGraph(graph_omp);*/
+
+      // Serial Radix
+   Start(timer);
+   graph_omp = radix_serial(graph_omp, timers); // you need to parallelize this function
+   Stop(timer);
+   printMessageWithtime("Radix Sorting OMP (Seconds)", Seconds(timer));
+   printf("Init: %f Count: %f Crush: %f Xform: %f MPImsg: %f Sort: %f\n", Millisecs(&timers[INIT]),
+          Millisecs(&timers[COUNT]),
+          Millisecs(&timers[CRUSH]), Millisecs(&timers[XFORM]), Millisecs(&timers[MPI_MSG]),
+          Millisecs(&timers[SORT]));
+   //file_dump(graph_omp, strcat(prefix,"out-omp"));
+   if (validation_run(graph_ser, graph_omp, 1) == 0)
+      printf("validation PASS\n");
+   else
+      printf("validation FAIL\n");
+
+   freeGraph(graph_omp);
 
 
       //  freeGraph(graph);

@@ -1,0 +1,55 @@
+/home/smdupor
+c8
+Tue Sep 28 09:52:32 EDT 2021
+Running 16b8 large dataset on 16 CPU cores
+initializing graphs...
+initializing graphs...
+initializing graphs...
+initializing graphs...
+loading array...
+loading array...
+loading array...
+loading array...
+Copying graphs...
+Copying graphs...<1>
+<2><2>
+Done. Sorting. Edges: 65535 Vertices: 1241504644
+-----------------------------------------------------
+<1><2><2>
+Done. Sorting. Edges: 65535 Vertices: 1241504644
+-----------------------------------------------------
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 65535 Vertices: 1241504644
+-----------------------------------------------------
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 65535 Vertices: 1241504644
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 2.392677
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 2.395188
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 2.395920
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 2.398894
+-----------------------------------------------------
+Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 0.000000, 0.000000, 0.000000, 0.000000, 2.000000 
+Radix Sorting MPI (Seconds) :	 0.000317
+-----------------------------------------------------
+InitCountCrushXformMPImsgSort: 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 14653456000.000000 
+Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 0.000000, 0.000000, 0.000000, 0.000000, 10.000000 
+Total Sim Time:  :	 4.493137
+-----------------------------------------------------
+Slave process, exit, Radix MPI.
+InitCountCrushXformMPImsgSort: 0.000000, 0.000000, 0.000000, 0.000000, 8.000000 
+Total Sim Time:  :	 4.493599
+-----------------------------------------------------
+Total Sim Time:  :	 4.496261
+-----------------------------------------------------
+Interal Graph Failures Qty: 65535VALIDATION FAIL
+Total Sim Time:  :	 4.509807
+-----------------------------------------------------
+Tue Sep 28 09:52:38 EDT 2021

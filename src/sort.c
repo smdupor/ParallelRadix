@@ -105,6 +105,17 @@ struct Graph *radix_serial(struct Graph *graph, struct Timer *timer) {
    int i, key, pos;
    int max = 0, granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
 
+   Start(&timer[INIT]);
+   Start(&timer[COUNT]);
+   Stop(&timer[COUNT]);
+   Start(&timer[CRUSH]);
+   Stop(&timer[CRUSH]);
+   Start(&timer[XFORM]);
+   Stop(&timer[XFORM]);
+   Start(&timer[SORT]);
+   Start(&timer[MPI_MSG]);
+   Stop(&timer[MPI_MSG]);
+
    const int edges = graph->num_edges;
 
    for (i = 0; i < edges; ++i) {
@@ -115,8 +126,9 @@ struct Graph *radix_serial(struct Graph *graph, struct Timer *timer) {
    struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
    struct Edge *temp;
    int *vertex_count = (int *) malloc((2 * bitmask) * sizeof(int));
+   Stop(&timer[INIT]);
 
-   for (int digits = 0; max >> digits > 0; digits += granularity) {
+   for (int digits = 0; digits < 32; digits += granularity) {
       // zero Out count array
       for (i = 0; i < (2 * bitmask); ++i) {
          vertex_count[i] = 0;
@@ -143,6 +155,8 @@ struct Graph *radix_serial(struct Graph *graph, struct Timer *timer) {
       graph->sorted_edges_array = sorted_edges_array;
       sorted_edges_array = temp;
    }
+
+   Stop(&timer[SORT]);
    return graph;
 }
 

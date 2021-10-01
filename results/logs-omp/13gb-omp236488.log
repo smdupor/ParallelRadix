@@ -1,0 +1,100 @@
+/home/smdupor
+c4
+Thu Sep 30 12:55:26 EDT 2021
+Running 13gbB large dataset on 16 CPU cores
+RES _______ 4 __________ THR _________ 8,16,32 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 26.845686
+-----------------------------------------------------
+OMP Num THR: 8 on OMP RESOLUTION 4
+Radix Sorting OMP (Seconds) :	 35.347753
+-----------------------------------------------------
+Init: 1971.000000 Count: 15650.000000 Crush: 15773.000000 Xform: 15773.000000 MPImsg: 0.000000 Sort: 35334.000000
+validation PASS
+Total Sim Time:  :	 773.882079
+-----------------------------------------------------
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 26.803609
+-----------------------------------------------------
+OMP Num THR: 16 on OMP RESOLUTION 4
+Radix Sorting OMP (Seconds) :	 33.879956
+-----------------------------------------------------
+Init: 1969.000000 Count: 14102.000000 Crush: 14293.000000 Xform: 14293.000000 MPImsg: 0.000000 Sort: 33866.000000
+validation PASS
+Total Sim Time:  :	 749.686695
+-----------------------------------------------------
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 24.762278
+-----------------------------------------------------
+OMP Num THR: 32 on OMP RESOLUTION 4
+Radix Sorting OMP (Seconds) :	 33.603513
+-----------------------------------------------------
+Init: 1972.000000 Count: 13985.000000 Crush: 13985.000000 Xform: 13985.000000 MPImsg: 0.000000 Sort: 33589.000000
+validation PASS
+Total Sim Time:  :	 740.774938
+-----------------------------------------------------
+RES _______ 8 __________ THR _________ 4,8, 16, 32 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 26.429467
+-----------------------------------------------------
+OMP Num THR: 4 on OMP RESOLUTION 8
+Radix Sorting OMP (Seconds) :	 24.463264
+-----------------------------------------------------
+Init: 1971.000000 Count: 8025.000000 Crush: 8088.000000 Xform: 8088.000000 MPImsg: 0.000000 Sort: 24450.000000
+validation PASS
+Total Sim Time:  :	 731.282627
+-----------------------------------------------------
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 25.652097
+-----------------------------------------------------
+OMP Num THR: 8 on OMP RESOLUTION 8
+Radix Sorting OMP (Seconds) :	 24.714144
+-----------------------------------------------------
+Init: 1972.000000 Count: 8264.000000 Crush: 8379.000000 Xform: 8379.000000 MPImsg: 0.000000 Sort: 24701.000000
+validation PASS
+Total Sim Time:  :	 724.762864
+-----------------------------------------------------
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 26.846827
+-----------------------------------------------------
+OMP Num THR: 16 on OMP RESOLUTION 8
+Radix Sorting OMP (Seconds) :	 24.551142
+-----------------------------------------------------
+Init: 1967.000000 Count: 8123.000000 Crush: 8317.000000 Xform: 8317.000000 MPImsg: 0.000000 Sort: 24538.000000
+validation PASS
+Total Sim Time:  :	 722.908248
+-----------------------------------------------------
+initializing graphs...
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** JOB 236488 ON c4 CANCELLED AT 2021-09-30T14:10:47 DUE TO TIME LIMIT ***
+slurmstepd: error: *** STEP 236488.6 ON c4 CANCELLED AT 2021-09-30T14:10:47 DUE TO TIME LIMIT ***

@@ -1,0 +1,173 @@
+/home/smdupor
+c6
+Thu Sep 30 12:36:49 EDT 2021
+Running 84mB large dataset on 16 CPU cores
+RES _______ 4 __________ THR _________ 8,16,32 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.051522
+-----------------------------------------------------
+OMP Num THR: 8 on OMP RESOLUTION 4
+Radix Sorting OMP (Seconds) :	 0.435482
+-----------------------------------------------------
+Init: 17.000000 Count: 167.000000 Crush: 219.000000 Xform: 219.000000 MPImsg: 0.000000 Sort: 435.000000
+validation PASS
+Total Sim Time:  :	 5.239693
+-----------------------------------------------------
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.051947
+-----------------------------------------------------
+OMP Num THR: 16 on OMP RESOLUTION 4
+Radix Sorting OMP (Seconds) :	 0.543784
+-----------------------------------------------------
+Init: 17.000000 Count: 246.000000 Crush: 318.000000 Xform: 318.000000 MPImsg: 0.000000 Sort: 544.000000
+validation PASS
+Total Sim Time:  :	 5.073508
+-----------------------------------------------------
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.051635
+-----------------------------------------------------
+OMP Num THR: 32 on OMP RESOLUTION 4
+Radix Sorting OMP (Seconds) :	 0.368173
+-----------------------------------------------------
+Init: 17.000000 Count: 127.000000 Crush: 158.000000 Xform: 158.000000 MPImsg: 0.000000 Sort: 367.000000
+validation PASS
+Total Sim Time:  :	 4.474943
+-----------------------------------------------------
+RES _______ 8 __________ THR _________ 4,8, 16, 32 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.051644
+-----------------------------------------------------
+OMP Num THR: 4 on OMP RESOLUTION 8
+Radix Sorting OMP (Seconds) :	 0.326494
+-----------------------------------------------------
+Init: 17.000000 Count: 112.000000 Crush: 168.000000 Xform: 168.000000 MPImsg: 0.000000 Sort: 326.000000
+validation PASS
+Total Sim Time:  :	 4.440997
+-----------------------------------------------------
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.051595
+-----------------------------------------------------
+OMP Num THR: 8 on OMP RESOLUTION 8
+Radix Sorting OMP (Seconds) :	 0.436885
+-----------------------------------------------------
+Init: 17.000000 Count: 238.000000 Crush: 263.000000 Xform: 263.000000 MPImsg: 0.000000 Sort: 437.000000
+validation PASS
+Total Sim Time:  :	 4.552196
+-----------------------------------------------------
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.051695
+-----------------------------------------------------
+OMP Num THR: 16 on OMP RESOLUTION 8
+Radix Sorting OMP (Seconds) :	 0.520819
+-----------------------------------------------------
+Init: 17.000000 Count: 201.000000 Crush: 345.000000 Xform: 345.000000 MPImsg: 0.000000 Sort: 521.000000
+validation PASS
+Total Sim Time:  :	 4.641735
+-----------------------------------------------------
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.051678
+-----------------------------------------------------
+OMP Num THR: 32 on OMP RESOLUTION 8
+Radix Sorting OMP (Seconds) :	 0.277111
+-----------------------------------------------------
+Init: 17.000000 Count: 73.000000 Crush: 118.000000 Xform: 118.000000 MPImsg: 0.000000 Sort: 276.000000
+validation PASS
+Total Sim Time:  :	 4.411515
+-----------------------------------------------------
+RES _______ 16 __________ THR _________ 2, 4,8, 16 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.052570
+-----------------------------------------------------
+OMP Num THR: 2 on OMP RESOLUTION 16
+Radix Sorting OMP (Seconds) :	 0.244844
+-----------------------------------------------------
+Init: 18.000000 Count: 66.000000 Crush: 115.000000 Xform: 115.000000 MPImsg: 0.000000 Sort: 244.000000
+validation PASS
+Total Sim Time:  :	 4.378481
+-----------------------------------------------------
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.052355
+-----------------------------------------------------
+OMP Num THR: 4 on OMP RESOLUTION 16
+Radix Sorting OMP (Seconds) :	 0.315985
+-----------------------------------------------------
+Init: 18.000000 Count: 168.000000 Crush: 196.000000 Xform: 196.000000 MPImsg: 0.000000 Sort: 315.000000
+validation PASS
+Total Sim Time:  :	 4.439855
+-----------------------------------------------------
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.051704
+-----------------------------------------------------
+OMP Num THR: 8 on OMP RESOLUTION 16
+Radix Sorting OMP (Seconds) :	 0.378024
+-----------------------------------------------------
+Init: 19.000000 Count: 205.000000 Crush: 251.000000 Xform: 252.000000 MPImsg: 0.000000 Sort: 377.000000
+validation PASS
+Total Sim Time:  :	 4.492645
+-----------------------------------------------------
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.051696
+-----------------------------------------------------
+OMP Num THR: 16 on OMP RESOLUTION 16
+Radix Sorting OMP (Seconds) :	 0.427044
+-----------------------------------------------------
+Init: 19.000000 Count: 286.000000 Crush: 299.000000 Xform: 299.000000 MPImsg: 0.000000 Sort: 427.000000
+validation PASS
+Total Sim Time:  :	 4.487943
+-----------------------------------------------------
+Thu Sep 30 12:37:42 EDT 2021
