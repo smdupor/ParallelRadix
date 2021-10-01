@@ -118,11 +118,11 @@ int main(int argc, char **argv) {
       struct Graph *graph_ser = copyGraph(graph);
       printf("<1>");
       fflush(stdout);
-      //struct Graph *graph_omp = copyGraph(graph);
+      struct Graph *graph_omp = graph;
       printf("<2>");
       fflush(stdout);
      // struct Graph *graph_hyb = graph;
-      struct Graph* graph_mpi = graph;
+      //struct Graph* graph_mpi = graph;
 
       printf("<2>");
       fflush(stdout);
@@ -152,7 +152,7 @@ int main(int argc, char **argv) {
       //  printf("validation complete\n");
 
       // OMP Radix
-    /*  Start(timer);
+      Start(timer);
       graph_omp = radixSortEdgesBySourceOpenMP(graph_omp, timers); // you need to parallelize this function
       Stop(timer);
       printMessageWithtime("Radix Sorting OMP (Seconds)", Seconds(timer));
@@ -162,12 +162,12 @@ int main(int argc, char **argv) {
              Millisecs(&timers[SORT]));
       //file_dump(graph_omp, strcat(prefix,"out-omp"));
       if (validation_run(graph_ser, graph_omp, 1) == 0);
-      printf("validation PASS\n");
+         printf("validation PASS\n");
       freeGraph(graph_omp);
-*/
+
 
       //  freeGraph(graph);
-
+/*
         Start(timer);
        graph_mpi = radixSortEdgesBySourceMPI(graph_mpi, timers); // you need to parallelize this function
         Stop(timer);
@@ -190,7 +190,7 @@ int main(int argc, char **argv) {
              printf("InitCountCrushXformMPImsgSort: %f, %f, %f, %f, %f \n", Millisecs(&timers[INIT]),
                     Millisecs(&timers[COUNT]),
                     Millisecs(&timers[CRUSH]), Millisecs(&timers[XFORM]), Millisecs(&timers[MPI_MSG]));
-         }
+         }*/
       //if (myrank == 1) {
      /*    MPI_Barrier(MPI_COMM_WORLD);
 
@@ -216,13 +216,13 @@ int main(int argc, char **argv) {
          }
          MPI_Barrier(MPI_COMM_WORLD);
      // }*/
-      freeGraph(graph_mpi);
+      //freeGraph(graph_mpi);
       if (graph_ser)
          freeGraph(graph_ser);
       //if (graph_hyb)
       //   freeGraph(graph_hyb);
-      if (graph)
-         // freeGraph(graph);
+     // if (graph)
+    //      freeGraph(graph);
 
          Stop(timer2);
       printMessageWithtime("Total Sim Time: ", Seconds(timer2));
