@@ -45,7 +45,7 @@ struct Graph *radixSortEdgesBySourceOpenMP (struct Graph *graph)
 {
    printf("*** START Radix Sort Edges By Source OpenMP *** \n");
    int i, key, pos, digits=0;
-   const int granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
+   const int granularity = 16, bitmask = 0xffff; // 8-bit buckets, as masked by 0xff
    const int iters = 32/granularity;
 
    // To support the nested parallelism below, and to ensure correct performance on the ARC cluster, force thread
