@@ -29,14 +29,21 @@ struct Graph *radixSortEdgesBySourceOpenMP (struct Graph *graph)
    const int granularity = 8, bitmask = 0xff; // 8-bit buckets, as masked by 0xff
    const int iters = 32/granularity;
 
+   // To support the nested parallelism below, and to ensure correct performance on the ARC cluster, force thread
+   // size configuration to a power of two
    if(numThreads < 4)
       numThreads = 4;
+   else if(numThreads % 4 != 0 && numThreads % 8 != 0 && numThreads % 16 != 0 && numThreads % 32 != 0 )
+      numThreads = 8;
 
+   // Ensure OMP is properly configured
+   omp_set_nested(1);
+   omp_set_num_threads(numThreads);
+
+   // Calculate thread quantity for inner nested threads
    const int thread_per_bitbucket = numThreads/iters;
 
-   omp_set_nested(1);
-   omp_set_num_threads(thread_per_bitbucket*iters);
-
+   // Initialize constants and data structures
    const int edges = graph->num_edges;
    const int blocksize = bitmask + 1;
    const int all_blocks = blocksize + (thread_per_bitbucket*blocksize);
@@ -47,7 +54,7 @@ struct Graph *radixSortEdgesBySourceOpenMP (struct Graph *graph)
    int vertex_count_tmp[iters][all_blocks];
    int vertex_count[iters][blocksize];
 
-
+   // Initialize counting structures. Use serial for higher speed due to limited size.
    for (int k = 0; k < iters; ++k) {
       for (int q = 0; q < all_blocks; ++q)
          vertex_count_tmp[k][q] = 0;
@@ -55,37 +62,37 @@ struct Graph *radixSortEdgesBySourceOpenMP (struct Graph *graph)
          vertex_count[k][q] = 0;
    }
 
+   // Initialize offsets
    int thr=0, thr_offset=0;
    int offset=0;
    int end=0, row=0;
-
 
 #pragma omp parallel for default(none) shared(vertex_count_tmp, graph, digits) private(i, thr, thr_offset, offset, end, key, row) num_threads(iters)
    for (digits = 0; digits < 32; digits = digits + granularity) {
 #pragma omp parallel default(none) shared(vertex_count_tmp, graph, digits) private(i, thr, thr_offset, offset, end, key, row) num_threads(thread_per_bitbucket)
       {
+         // Initialize offsets for each thread. Note, these run unsynchronized.
          thr = omp_get_thread_num();
          offset = thr * (edges / omp_get_num_threads());
          end = offset + (edges / omp_get_num_threads());
          thr_offset = blocksize*thr;
          row = digits/granularity;
-         // printf("thread %i Row %i thr_off %i start %i end %i \n ", thr, row, thr_offset, offset, end);
+
+         // Make sure we get all the edges in case there is a remainder
          if ((edges - end) < (edges/omp_get_num_threads()) && (edges - end) > 0)
             end = edges;
 
          // count occurrence of key: id of a source vertex
          for (i = offset; i < end; ++i) {
-            //  printf("i at kill was: %i of %i of %i on %i rnk %i addr %08xi\n", i, end, edges, thr, my_rank, *&graph->sorted_edges_array[i-1].src);
             key = graph->sorted_edges_array[i].src;
             vertex_count_tmp[row][((key >> digits) & bitmask) + thr_offset]++;
-
          }
-
       }
    }
+
    const int stop = bitmask+1;
    int joffset=0;
-
+   // Collapse vertex count temp structure (expanded for multiple threads) into a single structure, vertex_count
 #pragma omp parallel for default(none) shared(vertex_count, vertex_count_tmp) private(joffset, i) schedule(static) num_threads(4)
    for(int f = 0; f<iters; ++f){
       for (int j = 0; j < thread_per_bitbucket; ++j){
@@ -99,13 +106,17 @@ struct Graph *radixSortEdgesBySourceOpenMP (struct Graph *graph)
       }
    }
 
+   // Perform the linear transformation step of the radix sort for all bucket sizes. Perform in serial for speed.
    for(int j=0;j < iters;++j)
       for (i = 1; i < blocksize; ++i)
          vertex_count[j][i] += vertex_count[j][i - 1];
 
+      // Perform the sort action once for each bucket. Note, this step is performed serially as a result of extensive testing with pipelined
+      // parallel methodologies. Please see the paper accompanying this code for details on this implementation choice.
    for (digits = 0; digits < 32; digits += granularity) {
-      // fill-in the sorted array of edges
+      // Pre-calculate the bucket to sort from
       row = digits/granularity;
+      // Sort this bucket
       for (i = edges - 1; i >= 0; --i) {
          key = graph->sorted_edges_array[i].src;
          key = (key >> digits) & bitmask;
@@ -118,6 +129,7 @@ struct Graph *radixSortEdgesBySourceOpenMP (struct Graph *graph)
       sorted_edges_array = temp;
    }
 
+   // Free the un-used array
    free(sorted_edges_array);
 
    return graph;
@@ -283,7 +295,7 @@ struct Graph *radixSortEdgesBySourceHybrid (struct Graph *graph)
 
             // count occurrence of key: id of a source vertex
             for (i = offset; i < end; ++i) {
-              //  printf("i at kill was: %i of %i of %i on %i rnk %i addr %08xi\n", i, end, edges, thr, my_rank, *&graph->sorted_edges_array[i-1].src);
+
                key = graph->sorted_edges_array[i].src;
                vertex_count_tmp[row][((key >> digits) & bitmask) + thr_offset]++;
             }
@@ -359,14 +371,14 @@ struct Graph *radixSortEdgesBySourceHybrid (struct Graph *graph)
 }
 #endif
 
-/**
- * PARALLEL COUNT SORT for TESTING PURPOSES ONLY
- * @param graph
- * @return
+/** The original Serial count sort code. This function is ONLY used for datapoint generation, and validation of correct-
+ * ness of the other sorting methods. In this submission, this function is NEVER called.
+ *
+ * @param graph the unsorted input graph.
+ * @return a pointer to the sorted output graph.
  */
-struct Graph *countSortEdgesBySource (struct Graph *graph)
+struct Graph *serial_count_sort (struct Graph *graph)
 {
-
    int i;
    int key;
    int pos;
@@ -402,13 +414,59 @@ struct Graph *countSortEdgesBySource (struct Graph *graph)
       vertex_count[key]--;
    }
 
-
-
    free(vertex_count);
    free(graph->sorted_edges_array);
-
    graph->sorted_edges_array = sorted_edges_array;
 
    return graph;
 
+}
+
+/** A simplistic parallel implementation of countsort, using built-in synchronization (atomic directives). This function
+ * is used ONLY for datapoint generation and comparison purposes; for this submitted code, this function is NEVER called.
+ *
+ * @param graph The unsorted input graph.
+ * @return  The sorted output graph.
+ */
+struct Graph * countSortEdgesBySource(struct Graph * graph) {
+   int i, key, pos;
+   struct Edge *sorted_edges_array = newEdgeArray(graph->num_edges);
+   // auxiliary arrays, allocated at the start up of the program
+   int *vertex_count = (int *) malloc(graph->num_vertices * sizeof(int)); // needed for Counting Sort
+   const int vertices = graph->num_vertices;
+   const int edges = graph->num_edges;
+
+#pragma omp parallel for default(none) shared(vertex_count) schedule(static, 256)
+   for (i = 0; i < vertices; ++i) {
+      vertex_count[i] = 0;
+   }
+
+   // count occurrence of key: id of a source vertex
+#pragma omp parallel for default(none) shared(vertex_count, graph) private(key, i) schedule(static, 256)
+   for (i = 0; i < edges; ++i) {
+      key = graph->sorted_edges_array[i].src;
+#pragma omp atomic
+      vertex_count[key]++;
+   }
+
+
+   // transform to cumulative sum
+
+   for (i = 1; i < graph->num_vertices; ++i) {
+      vertex_count[i] += vertex_count[i - 1];
+   }
+
+   // fill-in the sorted array of edges
+   for (i = graph->num_edges - 1; i >= 0; --i) {
+      key = graph->sorted_edges_array[i].src;
+      pos = vertex_count[key] - 1;
+      sorted_edges_array[pos] = graph->sorted_edges_array[i];
+      vertex_count[key]--;
+   }
+
+
+   free(vertex_count);
+   free(graph->sorted_edges_array);
+   graph->sorted_edges_array = sorted_edges_array;
+   return graph;
 }

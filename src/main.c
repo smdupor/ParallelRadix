@@ -48,7 +48,20 @@ static void usage(void)
     // _exit(-1);
 }
 
-
+/** Perform a validation run (comparison) between two graphs containing sorted edge arrays.
+ * Generally, to be used with a graph sorted using the original count sort function, and one of the parallel methods.
+ *
+ * This is not used in the production/submission version of this program: This REQUIRES the custom graph copy function
+ * which makes a copy in-memory of a given graph prior to sorting, which is not included in the code with this submission
+ * (as graph.c is not included).
+ *
+ * @param serial The "control" graph sorted with serial countsort
+ * @param test   The graph to be tested for correctness
+ * @param control A control switch: 0 for no output, 1 for reduced output (only print number of failures), 2 for
+ *                Verbose output: Print each failure in detail
+ * @return 0 if an exact match, -1 if number of edges is different, 1 .. sizeof(int) representing a count of the number
+ *          of failures, when the number of edges is the same between input graphs.
+ */
 int validation_run(const struct Graph *serial, const struct Graph *test, short control) {
    // Control = 0 NO printing
    // Control = 1 Print SUMS
@@ -203,15 +216,18 @@ int main(int argc, char **argv)
     //Set number of threads for the program
     omp_set_nested(1);
     omp_set_num_threads(numThreads);
+
+    // Initialize timer and graph pointer outside of compiler directives for successful builds.
    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
    struct Graph *graph;
+
 #ifdef OPENMP_HARNESS
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "OPENMP Implementation");
 #endif
 
 #ifdef MPI_HARNESS
-
+// ONLY PRINT INTERFACE INTERACTION ON ROOT NODE
    if(my_rank == 0) {
       printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "MPI Implementation");
@@ -219,6 +235,7 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef HYBRID_HARNESS
+   // ONLY PRINT INTERFACE INTERACTION ON ROOT NODE
    if(my_rank == 0) {
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Hybrid (OMP+MPI) Implementation");
@@ -255,7 +272,7 @@ int main(int argc, char **argv)
    printMessageWithtime("Time load edges to graph (Seconds)", Seconds(timer));
 #ifdef MPI_HARNESS
    }
-    else {
+    else {  // HOWEVER, MUST LOAD GRAPH ON ALL NODES
        graph = newGraph(fnameb);
           loadEdgeArray(fnameb, graph);
     }
@@ -263,19 +280,19 @@ int main(int argc, char **argv)
 
 #ifdef HYBRID_HARNESS
    }
-    else {
+    else {  // HOWEVER, MUST LOAD GRAPH ON ALL NODES
        graph = newGraph(fnameb);
           loadEdgeArray(fnameb, graph);
     }
 #endif
 
 
-   /////////////////////////////////////////////////////////////////////////
+/* EXCLUDED: MAKE A COPY OF THE GRAPH AND SORT WITH ORIGINAL SERIAL COUNTSORT FOR VALIDATION PURPOSES
     struct Graph *copy = copyGraph(graph);
-      copy = countSortEdgesBySource(copy);
-///////////////////////////////////////////////////////////////////////
+      copy = serial_count_sort(copy);
+*/
+
 #ifdef OPENMP_HARNESS
-   // you need to parallelize this function
    printf(" -----------------------------------------------------\n");
    printf("| %-51s | \n", "OPENMP RADIX Sort Graph");
    printf(" -----------------------------------------------------\n");
@@ -286,7 +303,6 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef MPI_HARNESS
-   // you need to parallelize this function
 if(my_rank == 0) {
    printf(" -----------------------------------------------------\n");
    printf("| %-51s | \n", "MPI RADIX Sort Graph");
@@ -298,7 +314,7 @@ if(my_rank == 0) {
    MPI_Barrier(MPI_COMM_WORLD);
    MPI_Finalize();
    if(my_rank > 0) {
-      printf("*************** WORKER PROCESS %i EXITING\n", my_rank);
+      // printf("*************** WORKER PROCESS %i EXITING\n", my_rank);
       if(graph)
          freeGraph(graph);
       return 0;
@@ -308,7 +324,6 @@ if(my_rank == 0) {
 #endif
 
 #ifdef HYBRID_HARNESS
-   // you need to parallelize this function
    if(my_rank == 0) {
    printf(" -----------------------------------------------------\n");
    printf("| %-51s | \n", "HYBRID OMP/MPI RADIX Sort Graph");
@@ -320,7 +335,7 @@ if(my_rank == 0) {
       MPI_Barrier(MPI_COMM_WORLD);
       MPI_Finalize();
       if(my_rank > 0) {
-      printf("*************** WORKER PROCESS %i EXITING\n", my_rank);
+      //printf("*************** WORKER PROCESS %i EXITING\n", my_rank);
       freeGraph(graph);
       return 0;
    }
@@ -362,13 +377,14 @@ if(my_rank == 0) {
 
     Stop(timer);
     printMessageWithtime("Time BFS (Seconds)", Seconds(timer));
-
+/*
+ * EXCLUDED: VALIDATE SORTED ARRAY FOR CORRECTNESS AGAINST ORIGINAL SERIAL COUNT SORT
     if(validation_run(copy, graph,1) ==0)
        printf("VALIDATION PASS");
     else
        printf("VALIDATION FAIL");
 
-   //freeGraph(copy);
+   freeGraph(copy);*/
 
     Start(timer);
     freeGraph(graph);

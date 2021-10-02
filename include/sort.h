@@ -20,6 +20,7 @@ struct Graph *radixSortEdgesBySourceHybrid (struct Graph *graph);
 #endif
 
 struct Graph *countSortEdgesBySource (struct Graph *graph);
+struct Graph* serial_count_sort (struct Graph* graph);
 
 extern int numThreads;
 
