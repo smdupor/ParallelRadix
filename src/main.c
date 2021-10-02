@@ -49,9 +49,102 @@ static void usage(void)
 }
 
 
+int validation_run(const struct Graph *serial, const struct Graph *test, short control) {
+   // Control = 0 NO printing
+   // Control = 1 Print SUMS
+   // Control = 2 Verbose
+   int success = -1;
+   switch(control){
+      case 0:
+         if(serial->num_edges != test->num_edges)
+            return success;
+         success = 0;
+         for(int i=0; i< serial->num_edges;++i){
+            if(serial->sorted_edges_array[i].src != test->sorted_edges_array[i].src &&
+               serial->sorted_edges_array[i].dest != test->sorted_edges_array[i].dest) {
+               ++success;
+            }
+         }
+         return success;
+      case 1:
+         if(serial->num_edges != test->num_edges) {
+            printf("Edge Quantity Failure: Input: %i  Output: %i\n", serial->num_edges, test->num_edges);
+            return success;
+         }
+         success = 0;
+         for(int i=0; i< serial->num_edges;++i){
+            if(serial->sorted_edges_array[i].src != test->sorted_edges_array[i].src &&
+               serial->sorted_edges_array[i].dest != test->sorted_edges_array[i].dest) {
+               ++success;
+            }
+         }
+         if(success>0)
+            printf("Interal Graph Failures Qty: %i",success);
+         return success;
+      case 2:
+         if(serial->num_edges != test->num_edges) {
+            printf("Edge Quantity Failure: Input: %i  Output: %i\n", serial->num_edges, test->num_edges);
+            return success;
+         }
+         success = 0;
+         for(int i=0; i< serial->num_edges;++i){
+            if(serial->sorted_edges_array[i].src != test->sorted_edges_array[i].src &&
+               serial->sorted_edges_array[i].dest != test->sorted_edges_array[i].dest) {
+               ++success;
+               printf("Internal Graph Failure on Row: %i, Contents %i - %i  VS %i - %i\n", i,serial->sorted_edges_array[i].src ,
+                      test->sorted_edges_array[i].src , serial->sorted_edges_array[i].dest, test->sorted_edges_array[i].dest);
+            }
+         }
+         if(success>0)
+            printf("Interal Graph Failures Qty: %i\n",success);
+         return success;
+   }
+   return success;
+}
+
+
 int main(int argc, char **argv)
 {
 
+#ifdef MPI_HARNESS
+   int provided;
+   MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
+   int size, my_rank;
+   MPI_Comm_size(MPI_COMM_WORLD, &size);
+   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+   if(size != 2 ) {
+      printf("**************************************************************\n"
+             "**************************************************************\n"
+             "**************************************************************\n"
+             "\n          INVALID MPI SIZING DETECTED. PLEASE RE-RUN     \n"
+             "                     WITH TWO MPI HOSTS, eg:                   \n"
+             "mpirun -n 2 ./bin/run-graph-mpi -f <graph file> -r [root] -n [num threads]\n\n"
+             "**************************************************************\n"
+             "**************************************************************\n"
+             "**************************************************************\n");
+         abort();
+   }
+#endif
+
+#ifdef HYBRID_HARNESS
+   int provided;
+   MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
+   int size, my_rank;
+   MPI_Comm_size(MPI_COMM_WORLD, &size);
+   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+   if(size != 2 ) {
+      printf("**************************************************************\n"
+             "**************************************************************\n"
+             "**************************************************************\n"
+             "\n          INVALID MPI SIZING DETECTED. PLEASE RE-RUN     \n"
+             "                     WITH TWO MPI HOSTS, eg:                   \n"
+             "mpirun -n 2 ./bin/run-graph-hybrid -f <graph file> -r [root] -n [num threads]\n\n"
+             "**************************************************************\n"
+             "**************************************************************\n"
+             "**************************************************************\n");
+         abort();
+   }
+#endif
 
     char *fvalue = NULL;
     char *rvalue = NULL;
@@ -99,7 +192,7 @@ int main(int argc, char **argv)
                 fprintf (stderr,
                          "Unknown option character `\\x%x'.\n",
                          optopt);
-            usage();
+           // usage();
             return 1;
         default:
             abort ();
@@ -110,65 +203,130 @@ int main(int argc, char **argv)
     //Set number of threads for the program
     omp_set_nested(1);
     omp_set_num_threads(numThreads);
-
+   struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+   struct Graph *graph;
 #ifdef OPENMP_HARNESS
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "OPENMP Implementation");
 #endif
 
 #ifdef MPI_HARNESS
-    printf(" -----------------------------------------------------\n");
+
+   if(my_rank == 0) {
+      printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "MPI Implementation");
+
 #endif
 
 #ifdef HYBRID_HARNESS
+   if(my_rank == 0) {
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Hybrid (OMP+MPI) Implementation");
+
 #endif
 
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "File Name");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", fnameb);
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Number of Threads");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", numThreads);
-    printf(" -----------------------------------------------------\n");
+   printf(" -----------------------------------------------------\n");
+   printf("| %-51s | \n", "File Name");
+   printf(" -----------------------------------------------------\n");
+   printf("| %-51s | \n", fnameb);
+   printf(" -----------------------------------------------------\n");
+   printf("| %-51s | \n", "Number of Threads");
+   printf(" -----------------------------------------------------\n");
+   printf("| %-51u | \n", numThreads);
+   printf(" -----------------------------------------------------\n");
 
 
-    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+   printf(" -----------------------------------------------------\n");
+   printf("| %-51s | \n", "New graph calculating size");
+   printf(" -----------------------------------------------------\n");
+   Start(timer);
+   graph = newGraph(fnameb);
+   Stop(timer);
+   printMessageWithtime("New Graph Created", Seconds(timer));
 
 
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "New graph calculating size");
-    printf(" -----------------------------------------------------\n");
-    Start(timer);
-    struct Graph *graph = newGraph(fnameb);
-    Stop(timer);
-    printMessageWithtime("New Graph Created", Seconds(timer));
+   printf(" -----------------------------------------------------\n");
+   printf("| %-51s | \n", "Populate Graph with edges");
+   printf(" -----------------------------------------------------\n");
+   Start(timer);
+   // populate the edge array from file
+   loadEdgeArray(fnameb, graph);
+   Stop(timer);
+   printMessageWithtime("Time load edges to graph (Seconds)", Seconds(timer));
+#ifdef MPI_HARNESS
+   }
+    else {
+       graph = newGraph(fnameb);
+          loadEdgeArray(fnameb, graph);
+    }
+#endif
+
+#ifdef HYBRID_HARNESS
+   }
+    else {
+       graph = newGraph(fnameb);
+          loadEdgeArray(fnameb, graph);
+    }
+#endif
 
 
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Populate Graph with edges");
-    printf(" -----------------------------------------------------\n");
-    Start(timer);
-    // populate the edge array from file
-    loadEdgeArray(fnameb, graph);
-    Stop(timer);
-    printMessageWithtime("Time load edges to graph (Seconds)", Seconds(timer));
+   /////////////////////////////////////////////////////////////////////////
+    struct Graph *copy = copyGraph(graph);
+      copy = countSortEdgesBySource(copy);
+///////////////////////////////////////////////////////////////////////
+#ifdef OPENMP_HARNESS
+   // you need to parallelize this function
+   printf(" -----------------------------------------------------\n");
+   printf("| %-51s | \n", "OPENMP RADIX Sort Graph");
+   printf(" -----------------------------------------------------\n");
+   Start(timer);
+   graph = radixSortEdgesBySourceOpenMP(graph); // you need to parallelize this function
+   Stop(timer);
+   printMessageWithtime("Time Sorting (Seconds)", Seconds(timer));
+#endif
 
+#ifdef MPI_HARNESS
+   // you need to parallelize this function
+if(my_rank == 0) {
+   printf(" -----------------------------------------------------\n");
+   printf("| %-51s | \n", "MPI RADIX Sort Graph");
+   printf(" -----------------------------------------------------\n");
+}
+   Start(timer);
+   graph = radixSortEdgesBySourceMPI(graph); // you need to parallelize this function
+   Stop(timer);
+   MPI_Barrier(MPI_COMM_WORLD);
+   MPI_Finalize();
+   if(my_rank > 0) {
+      printf("*************** WORKER PROCESS %i EXITING\n", my_rank);
+      if(graph)
+         freeGraph(graph);
+      return 0;
+   }
 
+   printMessageWithtime("Time Sorting (Seconds)", Seconds(timer));
+#endif
 
-    // you need to parallelize this function
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "COUNT Sort Graph");
-    printf(" -----------------------------------------------------\n");
-    Start(timer);
-    graph = countSortEdgesBySource(graph); // you need to parallelize this function
-    // graph = radixSortEdgesBySource(graph); // you need to parallelize this function
-    Stop(timer);
-    printMessageWithtime("Time Sorting (Seconds)", Seconds(timer));
+#ifdef HYBRID_HARNESS
+   // you need to parallelize this function
+   if(my_rank == 0) {
+   printf(" -----------------------------------------------------\n");
+   printf("| %-51s | \n", "HYBRID OMP/MPI RADIX Sort Graph");
+   printf(" -----------------------------------------------------\n");
+   }
+   Start(timer);
+   graph = radixSortEdgesBySourceHybrid(graph); // you need to parallelize this function
+   Stop(timer);
+      MPI_Barrier(MPI_COMM_WORLD);
+      MPI_Finalize();
+      if(my_rank > 0) {
+      printf("*************** WORKER PROCESS %i EXITING\n", my_rank);
+      freeGraph(graph);
+      return 0;
+   }
+   printMessageWithtime("Time Sorting (Seconds)", Seconds(timer));
+#endif
+
 
 
     // For testing purpose.
@@ -204,6 +362,13 @@ int main(int argc, char **argv)
 
     Stop(timer);
     printMessageWithtime("Time BFS (Seconds)", Seconds(timer));
+
+    if(validation_run(copy, graph,1) ==0)
+       printf("VALIDATION PASS");
+    else
+       printf("VALIDATION FAIL");
+
+   //freeGraph(copy);
 
     Start(timer);
     freeGraph(graph);

@@ -9,6 +9,6 @@
 pwd; hostname; date
 
 echo "Running 13GB large dataset on $SLURM_CPUS_ON_NODE CPU cores"
-mpirun -n 2 -bootstrap slurm /home/smdupor/ParallelRadix/bin/main_hyb -f /mnt/beegfs/smdupor/13gb.txt -n 4 -r 1659025
+mpirun -n 2 -bootstrap slurm /home/smdupor/ParSub/bin/run-graph-hybrid -f /mnt/beegfs/smdupor/13gb.txt -n 4 -r 1
 
 date

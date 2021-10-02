@@ -47,10 +47,10 @@ FILE_BIN_TYPE = 64m.txt
 FILE_BIN = $(BENCHMARKS_DIR)/$(FILE_BIN_TYPE)
 
 
-NUM_THREADS   = 4
+NUM_THREADS   = 16
 ROOT 		  = 1
 
-ARGS = -n $(NUM_THREADS) -r $(ROOT) -h
+ARGS = -n $(NUM_THREADS) -r $(ROOT)
 ##################################################
 ##################################################
 
@@ -176,11 +176,11 @@ run-openmp: app-openmp
 
 .PHONY: run-mpi
 run-mpi: app-mpi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-mpi -f $(FILE_BIN) $(ARGS)
+	mpirun -n 2 ./$(APP_DIR)/$(BIN_DIR)/$(APP)-mpi -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-hybrid
 run-hybrid: app-hybrid
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-hybrid -f $(FILE_BIN) $(ARGS)
+	mpirun -n 2 ./$(APP_DIR)/$(BIN_DIR)/$(APP)-hybrid -f $(FILE_BIN) $(ARGS)
 
 .PHONY: debug-openmp
 debug-openmp: app-openmp
