@@ -1,3 +1,14 @@
+/**
+ * int main() and supporting functions for the Parallel Radix sort project. This project aims to explore the cost and
+ * benefit of parallelizing a radix sort of an edgelist within a graph data structure, in several ways: OpenMP, MPI, and
+ * both in tandem. This file handles required initialization, sorting, graph breadth first search, and cleanup function-
+ * ality for all methods of this project, swapped in and out at compile time using compiler directives.
+ *
+ * Author: Stevan M. Dupor
+ * Created: 09/15/21
+ * Copyright 2021 by Stevan Dupor and NC State University. No unauthorized duplication permitted.
+ */
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>

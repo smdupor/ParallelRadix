@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=13gbhyb      # Job name
+#SBATCH --job-name=13g16hy      # Job name
 #SBATCH --mail-type=END,FAIL         # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=smdupor@ncsu.edu    # Where to send mail	
 #SBATCH -p normal
@@ -9,6 +9,6 @@
 pwd; hostname; date
 
 echo "Running 13GB large dataset on $SLURM_CPUS_ON_NODE CPU cores"
-mpirun -n 2 -bootstrap slurm /home/smdupor/ParSub/bin/run-graph-hybrid -f /mnt/beegfs/smdupor/13gb.txt -n 4 -r 1
+mpirun -n 2 -bootstrap slurm /home/smdupor/ParSub/bin/run-graph-hybrid -f /mnt/beegfs/smdupor/13gb.txt -n 16 -r 1
 
 date

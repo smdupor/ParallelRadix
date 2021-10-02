@@ -1,3 +1,15 @@
+/**
+ * Sort.c Source code for sorting functions which parallelize Radix sort of edge lists within graph structures. Simple
+ * OpenMP-based multiprocessor parallel radix, MPI-based HPC parallel radix, and OpenMP/MPI tandem parallel radix sorts
+ * are implemented and explored. Several iterations of design and parallelization were explored, and some specific
+ * sections were chosen to remain in serial format. Please consult accompanying paper for details on these design exper-
+ * iments and the resultant design choices included in this code.
+ *
+ * Author: Stevan M. Dupor
+ * Created: 09/15/21
+ * Copyright 2021 by Stevan Dupor and NC State University. No unauthorized duplication permitted.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -21,6 +33,13 @@
 
 
 
+/**
+ * OpenMP-based parallelization of a radix sort. This flexible sort takes advantage of the configured number of processors,
+ * but is designed with nested parallelism such that powers-of-two quantities of threads shall be used. Loop splitting
+ * is the key source of paralellism, as parallelization of the final step in several methods proved to only yield perfor-
+ * mance loss at benchmarking. Please consult the accompanying paper on these design choices and motivation for this
+ * submitted design.
+ */
 #ifdef OPENMP_HARNESS
 struct Graph *radixSortEdgesBySourceOpenMP (struct Graph *graph)
 {
@@ -136,6 +155,20 @@ struct Graph *radixSortEdgesBySourceOpenMP (struct Graph *graph)
 }
 #endif
 
+/**
+ * MPI-paralellized Radix sort of a graph's edgelist. This sort splits the buckets into two halves, with one MPI
+ * host handling the most-singificant 16 bits and one process handling the least-significant 16 bits. The MPI protocol
+ * is specifically designed to be extremely lightweight and keep dependence on high-latency gigabit ethernet-based TCP
+ * to a minimum; as such, All init, count, crush, and transform steps are performed in parallel -- then, the hosts
+ * synchronize and the root host performs the rest of the sort and graph functionality.
+ *
+ * PREREQUISITES: The initialization steps must be allowed to occur on all hosts. This is to prevent double-transmitting
+ * graph data over TCP, and to place the load on the BeeGFS SAN instead of the inter-host TCP connection. Also, MPI_Init()
+ * should have already been handled in the int main() function.
+ *
+ * POSTREQUISITE: int main() should also be prepared to handle return values from closing worker processes and freeing
+ * un-used memory in these worker processes, while the root process finished handling the program tasks.
+ */
 #ifdef MPI_HARNESS
 struct Graph *radixSortEdgesBySourceMPI (struct Graph *graph)
 {
@@ -229,6 +262,21 @@ struct Graph *radixSortEdgesBySourceMPI (struct Graph *graph)
 }
 #endif
 
+/**
+ * MPI-with-OpenMP parallelized Radix sort of a graph's edgelist. This sort splits the buckets into two halves, with one MPI
+ * host handling the most-singificant 16 bits and one process handling the least-significant 16 bits. On each host,
+ * the init, count, crush, and transform tasks are divided with omp across as many processors as reasonably possible
+ * (Currently tuned for the NCSU ARC cluster). Similar to the MPI section above, the MPI portion of the protocol
+ * is specifically intended to be lightweight, with a small synchronization section between init-count-crush-transform and
+ * sort-across-buckets.
+ *
+ * PREREQUISITES: The initialization steps must be allowed to occur on all hosts. This is to prevent double-transmitting
+ * graph data over TCP, and to place the load on the BeeGFS SAN instead of the inter-host TCP connection. Also, MPI_Init()
+ * should have already been handled in the int main() function.
+ *
+ * POSTREQUISITE: int main() should also be prepared to handle return values from closing worker processes and freeing
+ * un-used memory in these worker processes, while the root process finished handling the program tasks.
+ */
 #ifdef HYBRID_HARNESS
 struct Graph *radixSortEdgesBySourceHybrid (struct Graph *graph)
 {
