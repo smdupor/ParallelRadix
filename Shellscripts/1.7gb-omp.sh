@@ -2,7 +2,7 @@
 #SBATCH --job-name=17gomp     # Job name
 #SBATCH --mail-type=END,FAIL         # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=smdupor@ncsu.edu    # Where to send mail	
-#SBATCH -p skylake
+#SBATCH -p normal
 #SBATCH --nodes=1                    # Run all processes on a single node
 #SBATCH --time=10:15:00              # Time limit hrs:min:sec
 #SBATCH --output=17gb-omp%j.log     # Standard output and error log

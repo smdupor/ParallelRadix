@@ -2,7 +2,7 @@
 #SBATCH --job-name=13gbhyb      # Job name
 #SBATCH --mail-type=END,FAIL         # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=smdupor@ncsu.edu    # Where to send mail	
-#SBATCH -p skylake
+#SBATCH -p normal
 #SBATCH --nodes=2                    # Run all processes on a single node	
 #SBATCH --time=01:15:00              # Time limit hrs:min:sec
 #SBATCH --output=13gb-hyb%j.log     # Standard output and error log
