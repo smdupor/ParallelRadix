@@ -1,127 +1,195 @@
-# globals
-APP                = main
 
-# dirs
-APP_DIR           	= .
+#########################################################
+#       		 GENERAL DIRECTOIRES   	    			#
+#########################################################
+# globals binaary /bin
+APP                 = run-graph
+
+# dirs Root app
+APP_DIR             = .
+
+#dir root/managed_folders
 SRC_DIR           	= src
-OBJ_DIR			  	= obj
+OBJ_DIR_OMP			= obj-openmp
+OBJ_DIR_MPI			= obj-mpi
+OBJ_DIR_HYB			= obj-hybrid
 INC_DIR			  	= include
-BIN_DIR				= bin
+BIN_DIR			  	= bin
 
-# compilers
-#CC				  = gcc
- CC				  = mpicc
+##################################################
+##################################################
 
-INC = 	-I$(APP_DIR)/$(INC_DIR)/
-		
+#########################################################
+#       		         GRAPH ARGUMENTS    			#
+#########################################################
+
+BENCHMARKS_DIR    	= /mnt/beegfs/smdupor/
+
+#Tests
+# GRAPH_NAME = wiki-vote
+GRAPH_NAME = asdf
+# GRAPH_NAME = test
+
+# GONG # https://gonglab.pratt.duke.edu/google-dataset
+# GRAPH_NAME = gplus
+
+# GAP # https://sparse.tamu.edu/MM/GAP/
+# GRAPH_NAME = road
+
+# SNAP # https://snap.stanford.edu/data/
+# GRAPH_NAME = SNAP-cit-Patents
+# GRAPH_NAME = SNAP-com-Orkut
+
+# KONECT # http://konect.cc/networks/wikipedia_link_en/
+# export GRAPH_NAME = KONECT-wikipedia_link_en
+
+FILE_BIN_TYPE = 64m.txt
+FILE_BIN = $(BENCHMARKS_DIR)/$(FILE_BIN_TYPE)
+
+
+NUM_THREADS   = 16
+ROOT 		  = 1
+
+ARGS = -n $(NUM_THREADS) -r $(ROOT)
+##################################################
+##################################################
+
+CC		    = gcc
+CC_MPI		= mpicc
+APP_INC     = -I$(APP_DIR)/$(INC_DIR)
+
 # flags
-CFLAGS            = -O0 -Wall -m64 -fopenmp -g
+CFLAGS   =  -O3 -Wall -m64 -fopenmp -g
+LFLAGS 	 = -lm 
+
+##################################################
+##################################################
+
+##############################################
+#                  COMPILATION VARIABLES     #
+##############################################
+
+SRC_FILES_ALGO			=  $(wildcard $(APP_DIR)/$(SRC_DIR)/*.c)
+OBJ_FILES_ALGO_OMP      =  $(patsubst $(APP_DIR)/$(SRC_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR_OMP)/%.o,$(SRC_FILES_ALGO))
+OBJ_FILES_ALGO_MPI      =  $(patsubst $(APP_DIR)/$(SRC_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR_MPI)/%.o,$(SRC_FILES_ALGO))
+OBJ_FILES_ALGO_HYB      =  $(patsubst $(APP_DIR)/$(SRC_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR_HYB)/%.o,$(SRC_FILES_ALGO))
+INC_FILES_ALGO       	=  $(wildcard $(APP_DIR)/$(INC_DIR)/*.h)
+ALL_HEADER_FILES        =   $(INC_FILES_ALGO) 
+
+##################################################
+##################################################
+
+
+#########################################################
+#       		 OPEN GRAPH LIBRARY     				#
+#########################################################
 
 .PHONY: all
-all: test
-
-$(APP_DIR)/$(OBJ_DIR)/$(APP).o: $(APP_DIR)/$(SRC_DIR)/$(APP).c directories
-	@echo 'making $(APP) <- $(APP).o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/$(APP).o $(APP_DIR)/$(SRC_DIR)/$(APP).c
-
-$(APP_DIR)/$(OBJ_DIR)/edgelist.o: $(APP_DIR)/$(SRC_DIR)/edgelist.c $(APP_DIR)/$(INC_DIR)/edgelist.h directories
-	@echo 'making $(APP) <- edgelist.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/edgelist.o $(APP_DIR)/$(SRC_DIR)/edgelist.c
-
-$(APP_DIR)/$(OBJ_DIR)/sort.o: $(APP_DIR)/$(SRC_DIR)/sort.c $(APP_DIR)/$(INC_DIR)/sort.h directories
-	@echo 'making $(APP) <- sort.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/sort.o $(APP_DIR)/$(SRC_DIR)/sort.c
-
-$(APP_DIR)/$(OBJ_DIR)/vertex.o: $(APP_DIR)/$(SRC_DIR)/vertex.c $(APP_DIR)/$(INC_DIR)/vertex.h directories
-	@echo 'making $(APP) <- vertex.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/vertex.o $(APP_DIR)/$(SRC_DIR)/vertex.c
-
-$(APP_DIR)/$(OBJ_DIR)/timer.o: $(APP_DIR)/$(SRC_DIR)/timer.c $(APP_DIR)/$(INC_DIR)/timer.h directories
-	@echo 'making $(APP) <- timer.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/timer.o $(APP_DIR)/$(SRC_DIR)/timer.c
-
-$(APP_DIR)/$(OBJ_DIR)/graph.o: $(APP_DIR)/$(SRC_DIR)/graph.c $(APP_DIR)/$(INC_DIR)/graph.h directories
-	@echo 'making $(APP) <- graph.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/graph.o $(APP_DIR)/$(SRC_DIR)/graph.c
-
-$(APP_DIR)/$(OBJ_DIR)/bfs.o: $(APP_DIR)/$(SRC_DIR)/bfs.c $(APP_DIR)/$(INC_DIR)/bfs.h directories
-	@echo 'making $(APP) <- bfs.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/bfs.o $(APP_DIR)/$(SRC_DIR)/bfs.c
-
-$(APP_DIR)/$(OBJ_DIR)/arrayQueue.o: $(APP_DIR)/$(SRC_DIR)/arrayQueue.c $(APP_DIR)/$(INC_DIR)/arrayQueue.h directories
-	@echo 'making $(APP) <- arrayQueue.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/arrayQueue.o $(APP_DIR)/$(SRC_DIR)/arrayQueue.c
-
-$(APP_DIR)/$(OBJ_DIR)/bitmap.o: $(APP_DIR)/$(SRC_DIR)/bitmap.c $(APP_DIR)/$(INC_DIR)/bitmap.h directories
-	@echo 'making $(APP) <- bitmap.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/bitmap.o $(APP_DIR)/$(SRC_DIR)/bitmap.c
-
-.PHONY: app
-app: $(APP_DIR)/$(OBJ_DIR)/$(APP).o
-
-.PHONY: edgelist
-edgelist: $(APP_DIR)/$(OBJ_DIR)/edgelist.o
-
-.PHONY: sort
-sort: $(APP_DIR)/$(OBJ_DIR)/sort.o
-
-.PHONY: vertex
-vertex: $(APP_DIR)/$(OBJ_DIR)/vertex.o
-
-.PHONY: timer
-timer: $(APP_DIR)/$(OBJ_DIR)/timer.o
-
-.PHONY: bfs
-bfs: $(APP_DIR)/$(OBJ_DIR)/bfs.o
-
-.PHONY: graph
-graph: $(APP_DIR)/$(OBJ_DIR)/graph.o
-
-.PHONY: arrayQueue
-arrayQueue: $(APP_DIR)/$(OBJ_DIR)/arrayQueue.o
-
-.PHONY: bitmap
-bitmap: $(APP_DIR)/$(OBJ_DIR)/bitmap.o
+all: app-openmp app-mpi app-hybrid
 
 .PHONY: directories
 directories :
 	@mkdir -p $(APP_DIR)/$(BIN_DIR)
-	@mkdir -p $(APP_DIR)/$(OBJ_DIR)
+	@mkdir -p $(APP_DIR)/$(OBJ_DIR_OMP)
+	@mkdir -p $(APP_DIR)/$(OBJ_DIR_MPI)
+	@mkdir -p $(APP_DIR)/$(OBJ_DIR_HYB)
+
+##################################################
+##################################################
+
+.PHONY: app-openmp
+app-openmp: MODE = -DOPENMP_HARNESS
+app-openmp : directories $(APP_DIR)/$(BIN_DIR)/$(APP)-openmp
+	@echo "\n ******************************************************************************  "
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> openmp: ./$(word 2,$^)"
+	@echo " ******************************************************************************  \n"
+
+.PHONY: app-mpi
+app-mpi: MODE = -DMPI_HARNESS
+app-mpi : directories $(APP_DIR)/$(BIN_DIR)/$(APP)-mpi
+	@echo "\n ******************************************************************************  "
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> mpi: ./$(word 2,$^)"
+	@echo " ******************************************************************************  \n"
+
+.PHONY: app-hybrid
+app-hybrid: MODE = -DHYBRID_HARNESS
+app-hybrid : directories $(APP_DIR)/$(BIN_DIR)/$(APP)-hybrid
+	@echo "\n ******************************************************************************  "
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> hybrid: ./$(word 2,$^)"
+	@echo " ******************************************************************************  \n"
 
 
-.PHONY: test
-test: app edgelist sort vertex timer bfs graph bitmap arrayQueue
-	@echo 'linking $(APP) <- $(APP).o edgelist.o sort.o vertex.o timer.o bfs.o graph.o'
-	@$(CC) 	$(APP_DIR)/$(OBJ_DIR)/$(APP).o 			\
-			$(APP_DIR)/$(OBJ_DIR)/edgelist.o 		\
-			$(APP_DIR)/$(OBJ_DIR)/sort.o 			\
-			$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\
-			$(APP_DIR)/$(OBJ_DIR)/timer.o  			\
-			$(APP_DIR)/$(OBJ_DIR)/bfs.o 			\
-			$(APP_DIR)/$(OBJ_DIR)/graph.o  			\
-			$(APP_DIR)/$(OBJ_DIR)/arrayQueue.o  	\
-			$(APP_DIR)/$(OBJ_DIR)/bitmap.o  		\
-		 -o $(APP_DIR)/$(BIN_DIR)/$(APP)			\
-			$(CFLAGS)
+$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp :  $(OBJ_FILES_ALGO_OMP)
+	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
 
-n=1
-# r=3009230
-# f=./datasets/RMAT/RMAT22
-# r=6
-# f=./datasets/test/test.txt
-r=3120
-f=./datasets/facebook/facebook_combined.txt
+$(APP_DIR)/$(BIN_DIR)/$(APP)-mpi :  $(OBJ_FILES_ALGO_MPI)
+	@$(CC_MPI) $(CFLAGS) -o $@ $^  $(LFLAGS)
+
+$(APP_DIR)/$(BIN_DIR)/$(APP)-hybrid :  $(OBJ_FILES_ALGO_HYB)
+	@$(CC_MPI) $(CFLAGS) -o $@ $^  $(LFLAGS)
+
+$(APP_DIR)/$(OBJ_DIR_OMP)/%.o : $(APP_DIR)/$(SRC_DIR)/%.c $(INC_FILES_ALGO)
+	$(CC) $(CFLAGS) $(APP_INC) $(MODE) -c -o $@ $<
+
+$(APP_DIR)/$(OBJ_DIR_MPI)/%.o : $(APP_DIR)/$(SRC_DIR)/%.c $(INC_FILES_ALGO)
+	$(CC_MPI) $(CFLAGS) $(APP_INC) $(MODE) -c -o $@ $<
+
+$(APP_DIR)/$(OBJ_DIR_HYB)/%.o : $(APP_DIR)/$(SRC_DIR)/%.c $(INC_FILES_ALGO)
+	$(CC_MPI) $(CFLAGS) $(APP_INC) $(MODE) -c -o $@ $<
+
+##############################################
+#              TOP LEVEL RULES               #
+##############################################
 
 .PHONY: run
-run: test
-	#$(APP_DIR)/$(BIN_DIR)/$(APP) -f $(f) -n $(n) -r $(r) -h
+run: run-openmp
 
-.PHONY: debug
-debug: test	
-	gdb $(APP_DIR)/$(BIN_DIR)/$(APP)
+.PHONY: clean-openmp
+clean-openmp:
+	@rm -fr $(APP_DIR)/$(OBJ_DIR_OMP)
+	@rm -fr $(APP_DIR)/$(BIN_DIR)/$(APP)-openmp
+
+.PHONY: clean-mpi
+clean-mpi:
+	@rm -fr $(APP_DIR)/$(OBJ_DIR_OMP)
+	@rm -fr $(APP_DIR)/$(BIN_DIR)/$(APP)-mpi
+
+.PHONY: clean-hybrid
+clean-hybrid:
+	@rm -fr $(APP_DIR)/$(OBJ_DIR_OMP)
+	@rm -fr $(APP_DIR)/$(BIN_DIR)/$(APP)-hybrid
 
 .PHONY: clean
-clean:
-	@rm -rf  $(APP_DIR)/$(BIN_DIR)
-	@rm -rf  $(APP_DIR)/$(OBJ_DIR)
-	
+clean: clean-all
+
+.PHONY: clean-all
+clean-all:
+	@rm -fr $(APP_DIR)/$(OBJ_DIR_OMP)
+	@rm -fr $(APP_DIR)/$(OBJ_DIR_MPI)
+	@rm -fr $(APP_DIR)/$(OBJ_DIR_HYB)
+	@rm -fr $(APP_DIR)/$(BIN_DIR)
+
+
+.PHONY: run-openmp
+run-openmp: app-openmp
+	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp -f $(FILE_BIN) $(ARGS)
+
+.PHONY: run-mpi
+run-mpi: app-mpi
+	mpirun -n 2 ./$(APP_DIR)/$(BIN_DIR)/$(APP)-mpi -f $(FILE_BIN) $(ARGS)
+
+.PHONY: run-hybrid
+run-hybrid: app-hybrid
+	mpirun -n 2 ./$(APP_DIR)/$(BIN_DIR)/$(APP)-hybrid -f $(FILE_BIN) $(ARGS)
+
+.PHONY: debug-openmp
+debug-openmp: app-openmp
+	gdb -ex=r --args ./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp -f $(FILE_BIN) $(ARGS)
+
+.PHONY: debug-mpi
+debug-mpi: app-mpi
+	gdb -ex=r --args ./$(APP_DIR)/$(BIN_DIR)/$(APP)-mpi -f $(FILE_BIN) $(ARGS)
+
+.PHONY: debug-hybrid
+debug-hybrid: app-hybrid
+	gdb -ex=r --args ./$(APP_DIR)/$(BIN_DIR)/$(APP)-hybrid -f $(FILE_BIN) $(ARGS)

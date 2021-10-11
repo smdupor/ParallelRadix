@@ -1,0 +1,287 @@
+/home/smdupor
+c26
+Fri Oct  1 12:24:41 EDT 2021
+Running PARALLEL COUNT Sort for All dataset on 16 CPU cores
+-------------------------------------------------- 16 CORES-----------------
+64m ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5021410 Vertices: 2394385
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.053098
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 16 (Seconds): 0.680911 
+Init: 163.000000 Count: 336.000000 Crush: 336.000000 Xform: 338.000000 MPImsg: 0.000000 Sort: 628.000000
+validation PASS
+Total Sim Time:  :	 9.358347
+-----------------------------------------------------
+84m ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.051707
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 16 (Seconds): 0.701002 
+Init: 156.000000 Count: 338.000000 Crush: 338.000000 Xform: 340.000000 MPImsg: 0.000000 Sort: 649.000000
+validation PASS
+Total Sim Time:  :	 5.118608
+-----------------------------------------------------
+479m ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 34681189 Vertices: 4036538
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.304479
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 16 (Seconds): 1.356580 
+Init: 364.000000 Count: 740.000000 Crush: 740.000000 Xform: 785.000000 MPImsg: 0.000000 Sort: 1051.000000
+validation PASS
+Total Sim Time:  :	 28.475088
+-----------------------------------------------------
+1.7 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 117185083 Vertices: 3072627
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.911315
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 16 (Seconds): 3.009001 
+Init: 496.000000 Count: 1544.000000 Crush: 1544.000000 Xform: 1546.000000 MPImsg: 0.000000 Sort: 2095.000000
+validation PASS
+Total Sim Time:  :	 99.578797
+-----------------------------------------------------
+16b8m ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 65535 Vertices: 1241504644
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 2.121354
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 16 (Seconds): 6.224477 
+Init: 2865.000000 Count: 2989.000000 Crush: 2989.000000 Xform: 4090.000000 MPImsg: 0.000000 Sort: 4093.000000
+validation PASS
+Total Sim Time:  :	 7.842370
+-----------------------------------------------------
+20b8 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 1048575 Vertices: 16777215
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.095229
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 16 (Seconds): 0.884253 
+Init: 233.000000 Count: 423.000000 Crush: 423.000000 Xform: 683.000000 MPImsg: 0.000000 Sort: 789.000000
+validation PASS
+Total Sim Time:  :	 1.856187
+-----------------------------------------------------
+24b8 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 16777215 Vertices: 1241513877
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 3.755559
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 16 (Seconds): 10.008466 
+Init: 2902.000000 Count: 3946.000000 Crush: 3946.000000 Xform: 5078.000000 MPImsg: 0.000000 Sort: 6242.000000
+validation PASS
+Total Sim Time:  :	 27.042627
+-----------------------------------------------------
+28b8 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 268435455 Vertices: 1241513968
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 32.048468
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 16 (Seconds): 79.921356 
+Init: 3393.000000 Count: 19087.000000 Crush: 19087.000000 Xform: 20182.000000 MPImsg: 0.000000 Sort: 47860.000000
+validation PASS
+Total Sim Time:  :	 325.264679
+-----------------------------------------------------
+30b8 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 1073741822 Vertices: 184549375
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 84.187202
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 16 (Seconds): 219.624497 
+Init: 2899.000000 Count: 67157.000000 Crush: 67157.000000 Xform: 67498.000000 MPImsg: 0.000000 Sort: 135420.000000
+validation PASS
+Total Sim Time:  :	 1220.708178
+-----------------------------------------------------
+13gb ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 27.002717
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 16 (Seconds): 74.536141 
+Init: 2235.000000 Count: 26310.000000 Crush: 26310.000000 Xform: 26514.000000 MPImsg: 0.000000 Sort: 47519.000000
+validation PASS
+Total Sim Time:  :	 811.615379
+-----------------------------------------------------
+-------------------------------------------------- 32 CORES-----------------
+64m ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5021410 Vertices: 2394385
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.053202
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 32 (Seconds): 1.181022 
+Init: 309.000000 Count: 570.000000 Crush: 570.000000 Xform: 633.000000 MPImsg: 0.000000 Sort: 1054.000000
+validation PASS
+Total Sim Time:  :	 4.798526
+-----------------------------------------------------
+84m ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 5533214 Vertices: 1971281
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.051453
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 32 (Seconds): 1.181554 
+Init: 405.000000 Count: 665.000000 Crush: 665.000000 Xform: 667.000000 MPImsg: 0.000000 Sort: 1129.000000
+validation PASS
+Total Sim Time:  :	 5.613915
+-----------------------------------------------------
+479m ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 34681189 Vertices: 4036538
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.303710
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 32 (Seconds): 1.901168 
+Init: 560.000000 Count: 1059.000000 Crush: 1059.000000 Xform: 1062.000000 MPImsg: 0.000000 Sort: 1597.000000
+validation PASS
+Total Sim Time:  :	 28.215737
+-----------------------------------------------------
+1.7 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 117185083 Vertices: 3072627
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.902835
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 32 (Seconds): 3.607451 
+Init: 709.000000 Count: 2019.000000 Crush: 2019.000000 Xform: 2021.000000 MPImsg: 0.000000 Sort: 2703.000000
+validation PASS
+Total Sim Time:  :	 101.115320
+-----------------------------------------------------
+16b8m ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 65535 Vertices: 1241504644
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 2.157862
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 32 (Seconds): 6.827976 
+Init: 3144.000000 Count: 3400.000000 Crush: 3400.000000 Xform: 4658.000000 MPImsg: 0.000000 Sort: 4661.000000
+validation PASS
+Total Sim Time:  :	 13.802382
+-----------------------------------------------------
+20b8 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 1048575 Vertices: 16777215
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 0.094177
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 32 (Seconds): 1.371688 
+Init: 568.000000 Count: 884.000000 Crush: 884.000000 Xform: 1202.000000 MPImsg: 0.000000 Sort: 1278.000000
+validation PASS
+Total Sim Time:  :	 2.321945
+-----------------------------------------------------
+24b8 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 16777215 Vertices: 1241513877
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 3.683829
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 32 (Seconds): 10.414341 
+Init: 3172.000000 Count: 4294.000000 Crush: 4294.000000 Xform: 5617.000000 MPImsg: 0.000000 Sort: 6720.000000
+validation PASS
+Total Sim Time:  :	 27.438431
+-----------------------------------------------------
+28b8 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 268435455 Vertices: 1241513968
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 31.663308
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 32 (Seconds): 79.564397 
+Init: 3704.000000 Count: 19042.000000 Crush: 19042.000000 Xform: 20414.000000 MPImsg: 0.000000 Sort: 47888.000000
+validation PASS
+Total Sim Time:  :	 323.708547
+-----------------------------------------------------
+30b8 ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 1073741822 Vertices: 184549375
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 82.963915
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 32 (Seconds): 216.767639 
+Init: 3201.000000 Count: 66202.000000 Crush: 66202.000000 Xform: 66794.000000 MPImsg: 0.000000 Sort: 133787.000000
+validation PASS
+Total Sim Time:  :	 1207.895225
+-----------------------------------------------------
+13gb ___________
+initializing graphs...
+loading array...
+Copying graphs...
+<1><2><2>
+Done. Sorting. Edges: 925988138 Vertices: 28943748
+-----------------------------------------------------
+Serial Count Sort (Seconds) :	 24.559946
+-----------------------------------------------------
+Countsort Sorting OMP on thrQry 32 (Seconds): 70.353907 
+Init: 2529.000000 Count: 26805.000000 Crush: 26805.000000 Xform: 27167.000000 MPImsg: 0.000000 Sort: 45780.000000
+validation PASS
+Total Sim Time:  :	 805.640127
+-----------------------------------------------------
+Fri Oct  1 13:49:03 EDT 2021
